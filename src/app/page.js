@@ -1,101 +1,92 @@
-import Image from "next/image";
+'use client';
+
+import Navbar from '../components/navbar';
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-gray-900">
+      <Navbar />
+      
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Main Section */}
+      <main className="max-w-5xl mx-auto px-4 py-16 text-white relative z-0">
+        <div className="max-w-3xl">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">Welcome to Tech Frenzy</h1>
+          <p className="mt-6 text-xl text-gray-300">A modern platform with a beautiful glassmorphic interface</p>
+          <div className="mt-10 flex flex-col sm:flex-row gap-4">
+            <a href="#" className="bg-blue-500 text-white px-6 py-3 rounded-lg font-medium text-center hover:bg-blue-600">
+              Get Started
+            </a>
+            <a href="#" className="px-6 py-3 rounded-lg font-medium text-center border border-white/20 hover:bg-white/10 transition-all">
+              Learn More
+            </a>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      {/* About Section */}
+      <section id="about" className="max-w-5xl mx-auto px-4 py-16 text-white">
+        <h2 className="text-3xl font-bold mb-8">About Us</h2>
+        <div className="bg-white/10 backdrop-filter backdrop-blur-lg rounded-xl p-6">
+          <p className="mb-4">Tech Frenzy is a premier tech conference bringing together developers, designers, and technology enthusiasts from around the world.</p>
+          <p className="mb-4">Our mission is to create an environment where innovation thrives and connections are forged. Whether you're a seasoned professional or just starting your journey in tech, Tech Frenzy offers something valuable for everyone.</p>
+          <p>Join us for three days of inspiring talks, hands-on workshops, and networking opportunities with industry leaders.</p>
+        </div>
+      </section>
+
+      {/* Timeline Section */}
+      <section id="timeline" className="max-w-5xl mx-auto px-4 py-16 text-white">
+        <h2 className="text-3xl font-bold mb-8">Event Timeline</h2>
+        <div className="space-y-8">
+          {[
+            { day: "Day 1 - Opening Ceremony", details: "Keynote speakers, panel discussions, and welcome reception.", date: "June 15, 2025 • 9:00 AM - 5:00 PM" },
+            { day: "Day 2 - Workshops & Hackathon", details: "Hands-on workshops, coding challenges, and networking lunch.", date: "June 16, 2025 • 9:00 AM - 8:00 PM" },
+            { day: "Day 3 - Presentations & Awards", details: "Project presentations, award ceremony, and closing gala.", date: "June 17, 2025 • 10:00 AM - 6:00 PM" }
+          ].map((event, index) => (
+            <div key={index} className="bg-white/10 backdrop-filter backdrop-blur-lg rounded-xl p-6">
+              <h3 className="text-xl font-bold mb-2">{event.day}</h3>
+              <p>{event.details}</p>
+              <div className="mt-4 text-blue-400">{event.date}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Glimpses Section */}
+      <section id="glimpses" className="max-w-5xl mx-auto px-4 py-16 text-white">
+        <h2 className="text-3xl font-bold mb-8">Glimpses from Previous Events</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[
+            "Keynote Session 2024",
+            "Workshop on AI Development",
+            "Networking Reception"
+          ].map((title, index) => (
+            <div key={index} className="bg-white/10 backdrop-filter backdrop-blur-lg rounded-xl overflow-hidden">
+              <div className="h-48 bg-gray-700"></div>
+              <div className="p-4">
+                <p>{title}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="max-w-5xl mx-auto px-4 py-16 text-white">
+        <h2 className="text-3xl font-bold mb-8">Frequently Asked Questions</h2>
+        <div className="space-y-6">
+          {[
+            { question: "How can I register for Tech Frenzy?", answer: "Registration is available through our website. Click on the 'Register Now' button at the top of the page to secure your spot." },
+            { question: "What is included in the registration fee?", answer: "Your registration includes access to all keynotes, workshops, networking events, meals during the conference, and exclusive Tech Frenzy merchandise." },
+            { question: "Are there any scholarship opportunities available?", answer: "Yes, we offer a limited number of diversity scholarships. Please check our scholarship page for more information and application details." }
+          ].map((faq, index) => (
+            <div key={index} className="bg-white/10 backdrop-filter backdrop-blur-lg rounded-xl p-6">
+              <h3 className="text-xl font-bold mb-2">{faq.question}</h3>
+              <p>{faq.answer}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
