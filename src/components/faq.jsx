@@ -5,14 +5,14 @@ import React, { useState, useRef, useEffect } from 'react';
 const FaqItem = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
   const contentRef = useRef(null);
-  
+
   const toggleFaq = () => {
     setIsOpen(!isOpen);
   };
 
   return (
     <div className="faq-item bg-white/10 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700/30 overflow-hidden shadow-lg">
-      <button 
+      <button
         onClick={toggleFaq}
         className={`faq-toggle w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none focus:ring-2 focus:ring-blue-500/40 rounded-t-xl hover:bg-white/5 transition-all duration-200 ${isOpen ? 'bg-white/5' : ''}`}
       >
@@ -21,7 +21,7 @@ const FaqItem = ({ question, answer }) => {
           {isOpen ? '×' : '+'}
         </span>
       </button>
-      <div 
+      <div
         ref={contentRef}
         className="faq-content overflow-hidden transition-all duration-300 ease-in-out"
         style={{ maxHeight: isOpen ? `${contentRef.current?.scrollHeight}px` : '0px' }}
@@ -57,24 +57,21 @@ const FAQ = () => {
       answer: "Teams will submit their projects through our hackathon platform, including code repositories, project descriptions, and demo videos (max 3 minutes). Finalists will be invited to present their projects live in a 5-minute presentation followed by 3 minutes of Q&A with our judges. All presentations will be streamed live for the entire hackathon community to watch."
     }
   ];
-
-  // This effect replaces the accordion behavior to ensure only one FAQ is open at a time
   const [activeIndex, setActiveIndex] = useState(null);
-  
+
   useEffect(() => {
-    // You could add additional initialization here if needed
   }, []);
 
   return (
     <section id="faq" className="max-w-5xl mx-auto px-4 py-16 text-white">
       <h2 className="text-3xl font-bold mb-10 text-center">Frequently Asked Questions</h2>
-      
+
       <div className="space-y-4">
         {faqData.map((faq, index) => (
-          <FaqItem 
-            key={index} 
-            question={faq.question} 
-            answer={faq.answer} 
+          <FaqItem
+            key={index}
+            question={faq.question}
+            answer={faq.answer}
           />
         ))}
       </div>

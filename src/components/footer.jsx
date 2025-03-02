@@ -11,23 +11,16 @@ const Footer = () => {
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
     const email = emailInputRef.current.value;
-    
-    // Simple email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     if (!emailRegex.test(email)) {
       setShowError(true);
       return;
     }
-    
+
     setShowError(false);
-    // Here you would typically send the form data to your backend
-    
-    // Show success message
     setShowSuccess(true);
     emailInputRef.current.value = '';
-    
-    // Hide success message after 5 seconds
     setTimeout(() => {
       setShowSuccess(false);
     }, 5000);
@@ -80,43 +73,36 @@ const Footer = () => {
 
   return (
     <footer className="footer-container bg-[transparent] backdrop-filter backdrop-blur-md rounded-2xl mx-auto my-12 p-8 max-w-7xl text-white w-[100%]">
-      
-      {/* Newsletter Section with Refined Design */}
       <div className="max-w-6xl mx-auto mb-16 p-8 rounded-xl bg-gradient-to-br from-gray-900/90 to-gray-800/70 backdrop-blur-md border border-gray-700/50 shadow-xl">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
-          {/* Enhanced Icon with Subtle Animation */}
           <div className="relative w-20 h-20 flex-shrink-0 group">
-            {/* Stacked papers with professional gradient */}
             <div className="absolute top-3 left-3 w-full h-full bg-blue-900/70 rounded transform rotate-6 transition-transform group-hover:rotate-9 duration-300"></div>
             <div className="absolute top-1.5 left-1.5 w-full h-full bg-blue-800/80 rounded transform -rotate-3 transition-transform group-hover:-rotate-6 duration-300"></div>
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600 to-indigo-700 rounded shadow-md transition-all group-hover:shadow-blue-500/20 group-hover:shadow-lg"></div>
-            {/* Mail icon overlay with improved visibility */}
             <div className="absolute inset-0 flex items-center justify-center text-white">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-9 w-9 opacity-95" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
           </div>
-    
-          {/* Refined Text Content */}
+
           <div className="flex-1">
             <h2 className="text-white text-2xl font-semibold mb-2 tracking-tight">Stay informed with our newsletter</h2>
             <p className="text-gray-300 text-sm leading-relaxed">Receive the latest updates, industry insights, and exclusive content delivered directly to your inbox.</p>
           </div>
-    
-          {/* Improved Form Design */}
+
           <div className="w-full md:w-auto mt-4 md:mt-0">
             <form id="newsletter-form" className="flex flex-col md:flex-row gap-3" onSubmit={handleNewsletterSubmit}>
               <div className="relative w-full md:w-80">
-                <input 
+                <input
                   ref={emailInputRef}
-                  type="email" 
+                  type="email"
                   required
-                  placeholder="Your email address" 
+                  placeholder="Your email address"
                   className="bg-gray-800/80 text-white placeholder-gray-400 px-4 py-3 pr-28 rounded-lg w-full border border-gray-700/60 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all"
                 />
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="absolute right-1.5 top-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md transition-colors font-medium text-sm"
                 >
                   Subscribe
@@ -130,7 +116,7 @@ const Footer = () => {
             </form>
           </div>
         </div>
-    
+
         {/* Success Message */}
         {showSuccess && (
           <div className="mt-4 text-sm text-center text-blue-400 font-medium">
@@ -138,8 +124,7 @@ const Footer = () => {
           </div>
         )}
       </div>
-      
-      {/* Navigation Links Section with Enhanced Design */}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10 text-white mb-12 px-2">
         {/* Developer Section */}
         <div>
@@ -183,18 +168,17 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Connect Section with Social Icons */}
+
         <div>
           <h4 className="text-gray-300 font-medium mb-5 flex items-center text-sm uppercase tracking-wider">
             <span className="text-blue-500 mr-2">//</span>
             Connect
           </h4>
           <div className="grid grid-cols-3 gap-2 mb-4">
-            {/* Social Icons */}
             {socialLinks.map((item) => (
-              <Link 
+              <Link
                 key={item.name}
-                href={item.href} 
+                href={item.href}
                 className="flex items-center justify-center h-10 w-10 rounded-lg bg-gray-800/50 hover:bg-gray-700/70 transition-colors border border-gray-700/30"
                 aria-label={item.name}
               >
@@ -206,8 +190,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-
-      {/* Bottom Section with Logo and Copyright */}
       <div className="flex flex-col md:flex-row justify-between items-center border-t border-gray-800/50 pt-8 mt-8">
         <div className="flex flex-col md:flex-row items-center gap-4 mb-6 md:mb-0">
           {/* Tech Frenzy Logo */}
