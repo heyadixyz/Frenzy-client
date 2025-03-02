@@ -8,7 +8,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-900">
       <Navbar />
-      
+
+      {/*Main and Other Section Made for Components viewing & Testing only */}
       {/* Main Section */}
       <main className="max-w-5xl mx-auto px-4 py-16 text-white relative z-0">
         <div className="max-w-3xl">
@@ -72,7 +73,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FAQ Section - Now using the FAQ component */}
+      {/*using the FAQ component */}
       <FAQ />
 
       {/* Register Section */}
@@ -107,6 +108,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Footer Component */}
       <Footer />
     </div>
   );
