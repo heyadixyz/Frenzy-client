@@ -1,13 +1,14 @@
 'use client';
 
 import Navbar from '../components/navbar';
+import Footer from '../components/footer';
+import FAQ from '../components/faq';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-900">
       <Navbar />
       
-
       {/* Main Section */}
       <main className="max-w-5xl mx-auto px-4 py-16 text-white relative z-0">
         <div className="max-w-3xl">
@@ -71,22 +72,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section id="faq" className="max-w-5xl mx-auto px-4 py-16 text-white">
-        <h2 className="text-3xl font-bold mb-8">Frequently Asked Questions</h2>
-        <div className="space-y-6">
-          {[
-            { question: "How can I register for Tech Frenzy?", answer: "Registration is available through our website. Click on the 'Register Now' button at the top of the page to secure your spot." },
-            { question: "What is included in the registration fee?", answer: "Your registration includes access to all keynotes, workshops, networking events, meals during the conference, and exclusive Tech Frenzy merchandise." },
-            { question: "Are there any scholarship opportunities available?", answer: "Yes, we offer a limited number of diversity scholarships. Please check our scholarship page for more information and application details." }
-          ].map((faq, index) => (
-            <div key={index} className="bg-white/10 backdrop-filter backdrop-blur-lg rounded-xl p-6">
-              <h3 className="text-xl font-bold mb-2">{faq.question}</h3>
-              <p>{faq.answer}</p>
+      {/* FAQ Section - Now using the FAQ component */}
+      <FAQ />
+
+      {/* Register Section */}
+      <section id="register" className="max-w-5xl mx-auto px-4 py-16 text-white">
+        <h2 className="text-3xl font-bold mb-8">Registration</h2>
+        <div className="bg-white/10 backdrop-filter backdrop-blur-lg rounded-xl p-6">
+          <p className="mb-4">Registration is now open for Tech Frenzy 2025. Join us for an unforgettable experience!</p>
+        </div>
+      </section>
+
+      {/* Partners Section */}
+      <section id="community-partners" className="max-w-5xl mx-auto px-4 py-16 text-white">
+        <h2 className="text-3xl font-bold mb-8">Community Partners</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((item) => (
+            <div key={item} className="bg-white/10 backdrop-filter backdrop-blur-lg rounded-xl p-6 flex items-center justify-center h-24">
+              <p>Partner {item}</p>
             </div>
           ))}
         </div>
       </section>
+
+      {/* Sponsors Section */}
+      <section id="sponsors" className="max-w-5xl mx-auto px-4 py-16 text-white">
+        <h2 className="text-3xl font-bold mb-8">Sponsors</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((item) => (
+            <div key={item} className="bg-white/10 backdrop-filter backdrop-blur-lg rounded-xl p-6 flex items-center justify-center h-24">
+              <p>Sponsor {item}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 }
