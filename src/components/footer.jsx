@@ -116,8 +116,6 @@ const Footer = () => {
             </form>
           </div>
         </div>
-
-        {/* Success Message */}
         {showSuccess && (
           <div className="mt-4 text-sm text-center text-blue-400 font-medium">
             Thank you for subscribing. We've sent a confirmation email to your inbox.
@@ -126,7 +124,6 @@ const Footer = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10 text-white mb-12 px-2">
-        {/* Developer Section */}
         <div>
           <h4 className="text-gray-300 font-medium mb-5 flex items-center text-sm uppercase tracking-wider">
             <span className="text-emerald-400 mr-2">//</span>
@@ -138,8 +135,6 @@ const Footer = () => {
             <li><Link href="#" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center"><span className="mr-2 opacity-70"> </span> Example Apps</Link></li>
           </ul>
         </div>
-
-        {/* Network Section */}
         <div>
           <h4 className="text-gray-300 font-medium mb-5 flex items-center text-sm uppercase tracking-wider">
             <span className="text-blue-500 mr-2">//</span>
@@ -151,8 +146,6 @@ const Footer = () => {
             <li><Link href="#" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center"><span className="mr-2 opacity-70"> </span> Media Node Docs</Link></li>
           </ul>
         </div>
-
-        {/* Company Section */}
         <div>
           <h4 className="text-gray-300 font-medium mb-5 flex items-center text-sm uppercase tracking-wider">
             <span className="text-blue-500 mr-2">//</span>
@@ -192,8 +185,8 @@ const Footer = () => {
       </div>
       <div className="flex flex-col md:flex-row justify-between items-center border-t border-gray-800/50 pt-8 mt-8">
         <div className="flex flex-col md:flex-row items-center gap-4 mb-6 md:mb-0">
-          {/* Tech Frenzy Logo */}
-          <div className="text-white font-bold py-2 px-4 rounded-lg mr-3">
+          <div className="text-white flex flex-row items-center font-bold py-2 px-4 rounded-lg mr-3">
+            <img src="/logo.png" alt="Tech Frenzy" className="h-8 w-auto mr-1" />
             Tech Frenzy
           </div>
           <span className="text-gray-400 text-sm">Copyright © 2025 Tech Frenzy. All rights reserved.</span>
