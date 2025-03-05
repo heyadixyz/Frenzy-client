@@ -116,7 +116,7 @@ const Community = () => {
             tape: "-5deg",
             zIndex: 40,
             delay: 0.5
-        },
+        }
     ];
 
     const socialLinks = [
