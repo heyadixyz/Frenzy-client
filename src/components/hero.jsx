@@ -16,16 +16,16 @@ export const Hero = () => {
       await new Promise((resolve) => setTimeout(resolve, 800));
 
       // Scenario 1: Upcoming event
-      setEventData({
-        hasEvent: true,
-        eventTime: new Date(Date.now() + 5 * 1000).toISOString(),
-        // eventTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
-        eventTitle: "Hackathon 2025",
-        eventTagline: "Build the future in 48 hours",
-      });
+      // setEventData({
+      //   hasEvent: true,
+      //   eventTime: new Date(Date.now() + 5 * 1000).toISOString(),
+      //   // eventTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
+      //   eventTitle: "Hackathon 2025",
+      //   eventTagline: "Build the future in 48 hours",
+      // });
 
       // Scenario 2: No upcoming event
-      // setEventData({ hasEvent: false });
+      setEventData({ hasEvent: false });
 
       setLoading(false);
     };
