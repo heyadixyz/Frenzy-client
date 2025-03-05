@@ -25,6 +25,7 @@
     "react-confetti": "^6.3.0",
     "react-dom": "^19.0.0",
     "react-use": "^17.6.0",
+    "react-vertical-timeline-component": "^3.5.3",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7"
   },
