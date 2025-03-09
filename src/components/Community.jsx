@@ -45,17 +45,21 @@ const PolaroidImage = ({ position, rotationDeg, tapeDeg, imageSrc, altText, hash
             }}
         >
             <div className="tape" style={{ transform: `rotate(var(--tape-deg))` }}></div>
-            <div className="relative w-full aspect-[3/4] bg-white overflow-hidden">
+            <div className="relative w-full aspect-[5/7] bg-white overflow-hidden">
                 <Image
                     src={imageSrc}
                     alt={altText}
                     fill
-                    sizes="(max-width: 768px) 33vw, (max-width: 1200px) 25vw, 20vw"
+                    sizes="(max-width: 768px) 93vw, (max-width: 1200px) 25vw, 20vw"
                     className="object-cover hover:scale-110 transition-transform duration-700"
                     priority
                 />
             </div>
-            <p className="text-center mt-2 font-marker text-gray-800 text-sm tracking-wide font-medium">{hashtag}</p>
+            <p className="text-center mt-2 font-marker text-gray-800 text-[10px] sm:text-sm tracking-wide font-medium break-words sm:break-normal max-w-[100%] sm:max-w-full mx-auto">
+                {hashtag}
+            </p>
+
+
         </motion.div>
     );
 };
@@ -111,7 +115,7 @@ const Community = () => {
             src: "/tech.jpeg",
             alt: "Tech Meetup",
             hashtag: "#TechCommunity",
-            position: "bottom-[60%] left-[30%] w-[23%] md:w-[16%]",
+            position: "bottom-[70%] md:bottom-[60%] left-[19%] md:left-[30%] w-[23%] md:w-[16%]",
             rotate: "6deg",
             tape: "-5deg",
             zIndex: 40,
@@ -141,13 +145,13 @@ const Community = () => {
                     <div className="inline-block px-4 py-1.5 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-full text-sm font-medium text-blue-300 mb-4">
                         Join Our Vibrant Community
                     </div>
-                    <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-indigo-200">
+                    <h2 className="text-3xl md:text-4xl lg:text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-indigo-200">
                         Be Part of Something Extraordinary
                     </h2>
-                    <div className="mx-auto w-24 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mb-6"></div>
+                    <div className="mx-auto w-24 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
                 </div>
 
-                <div className="w-full aspect-[21/9] bg-gradient-to-br from-gray-900 to-gray-800/90 grid-bg relative shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] mx-auto mb-24 rounded-2xl overflow-hidden border border-white/10 p-4">
+                <div className="w-full aspect-[3/4] sm:aspect-[21/9] bg-gradient-to-br from-gray-900 to-gray-800/90 grid-bg relative shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] mx-auto mb-24 rounded-2xl overflow-hidden border border-white/10 p-4">
                     <div className="absolute inset-0 overflow-hidden">
                         <div className="absolute w-full h-full bg-grid-pattern opacity-10"></div>
                         <div className="absolute top-0 right-0 w-1/3 h-1/2 bg-blue-800/5 rounded-full filter blur-[80px]"></div>
@@ -210,7 +214,7 @@ const Community = () => {
 
         .polaroid {
           background: #fff;
-          padding: 0.75rem 0.75rem 2.5rem;
+          padding: 0.75rem 0.29rem 0.9rem;
           box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3), 0 10px 15px rgba(0, 0, 0, 0.2);
           transform: rotate(var(--rotate-deg));
           transition: transform 0.5s ease, box-shadow 0.5s ease;
