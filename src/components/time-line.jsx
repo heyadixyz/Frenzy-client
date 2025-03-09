@@ -118,21 +118,32 @@ export const Timeline = () => {
 
       ctx.fillStyle = "#040404";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const gradient = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 2,
+      const gradientTL = ctx.createRadialGradient(
         0,
-        canvas.width / 2,
-        canvas.height / 2,
-        canvas.width / 1.5,
+        0,
+        0,
+        0,
+        0,
+        canvas.width * 0.7,
       );
+      gradientTL.addColorStop(0, "rgba(49, 47, 147, 0.35)");
+      gradientTL.addColorStop(0.6, "rgba(49, 47, 147, 0.15)");
+      gradientTL.addColorStop(1, "rgba(49, 47, 147, 0)");
+      ctx.fillStyle = gradientTL;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      gradient.addColorStop(0, "rgba(40, 10, 60, 0.15)");
-      gradient.addColorStop(0.5, "rgba(20, 5, 30, 0.1)");
-      gradient.addColorStop(1, "rgba(10, 5, 15, 0.05)");
-
-      ctx.fillStyle = gradient;
+      const gradientBR = ctx.createRadialGradient(
+        canvas.width,
+        canvas.height,
+        0,
+        canvas.width,
+        canvas.height,
+        canvas.width * 0.7,
+      );
+      gradientBR.addColorStop(0, "rgba(67, 19, 87, 0.35)");
+      gradientBR.addColorStop(0.6, "rgba(67, 19, 87, 0.15)");
+      gradientBR.addColorStop(1, "rgba(67, 19, 87, 0)");
+      ctx.fillStyle = gradientBR;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach((particle) => {
@@ -177,7 +188,7 @@ export const Timeline = () => {
               key={index}
               className="vertical-timeline-element--work"
               contentStyle={{
-                background: "rgba(139, 92, 246, 0.05)",
+                background: "rgba(20, 10, 30, 0.4)",
                 boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.08)",
                 backdropFilter: "blur(10px)",
                 border: "1px solid rgba(168, 85, 247, 0.08)",
