@@ -1,7 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   VerticalTimeline,
   VerticalTimelineElement,
@@ -9,125 +9,34 @@ import {
 import "react-vertical-timeline-component/style.min.css";
 
 export const Timeline = () => {
-  const data = [
-    {
-      id: 1,
-      date: "April 17th",
-      title: "Registration Opens",
-      description:
-        "Register for the hackathon and get ready to embark on an exciting journey of innovation.",
-    },
-    {
-      id: 2,
-      date: "May 7th",
-      title: "Registration Closes",
-      description:
-        "Last day to register for the hackathon. Don't miss out on the opportunity to showcase your skills and win exciting prizes.",
-    },
-    {
-      id: 3,
-      date: "Day 1: 10:00 AM - 10:30 AM, May 17th",
-      title: "Energize Your Brain",
-      description:
-        "Start your day with an inspirational keynote or a quick icebreaker session to getyour creative juices flowing. Meet your fellow hackers and form connections that will last beyond the event.",
-    },
-    {
-      id: 4,
-      date: "11:00 AM - 1:15 PM",
-      title: "Hackathon Kickoff",
-      description:
-        "The hacking officially begins! Dive into your projects, collaborate with your team, and start building your masterpiece. Remember, this is where your journey toinnovation takes off.",
-    },
-    {
-      id: 5,
-      date: "1:20 PM - 2:20 PM",
-      title: "Recharge and Refuel",
-      description: `It's lunchtime! Enjoy a delicious meal and take a well-deserved break. Use this
-        time to socialize, share ideas, and recharge for the exciting journey ahead.`,
-    },
-    {
-      id: 6,
-      date: "2:30 PM - 4:45 PM",
-      title: "Uninterrupted Hacking",
-      description: `Back to your projects! Focus on coding, designing, and refining your ideas. Our
-        mentors will be available online to assist you, so don't hesitate to reach out if you
-        need guidance.`,
-    },
-    {
-      id: 7,
-      date: "5:00 PM - 7:00 PM",
-      title: "Journey Back Home",
-      description: `Time to head home. We understand the importance of work-life balance. Take
-        this break to relax, grab dinner, and spend quality time with your loved ones.`,
-    },
-    {
-      id: 8,
-      date: "7:00 PM Onwards",
-      title: "Hack from Home",
-      description: `Continue your hackathon journey right from the comfort of your home. Whether
-        you prefer your cozy couch or a dedicated home office, make yourself
-        comfortable and keep those commits coming!`,
-    },
-    {
-      id: 9,
-      date: "Day 2: 10:00 AM - 11:00 AM, May 18th",
-      title: "Rise and Shine",
-      description: `Return to campus, ready to tackle the final stretch of your project. Today is all
-        about putting the finishing touches on your masterpiece.`,
-    },
-    {
-      id: 10,
-      date: "11:00 AM",
-      title: "Deadline Looms!",
-      description: `Your project submission deadline is approaching rapidly! Ensure that you've
-        covered all aspects, from code to documentation.`,
-    },
-    {
-      id: 11,
-      date: "11:00 AM - 11:30 PM",
-      title: "Video And PPT Creation",
-      description: `Prepare your PPT, rehearse your pitch, and make sure you're ready to be
-        impressed by your awesome video.`,
-    },
-    {
-      id: 12,
-      date: "11:30 AM - 11:45 AM",
-      title: "Final Checks",
-      description: `Double-check your project ZIP file, video, and any other submission materials.
-        Ensure everything is in order.`,
-    },
-    {
-      id: 13,
-      date: "12:00 PM",
-      title: "Submissions Close",
-      description: `Submit your project ZIP file, PPT & Video.`,
-    },
-    {
-      id: 14,
-      date: "12:00 PM - 4:00 PM",
-      title: "Final Evaluation",
-      description: `All projects will undergo thorough evaluation by the judges, based on their
-        functionality, innovation, presentation, etc. according to the requirements.`,
-    },
-    {
-      id: 15,
-      date: "4:00 PM",
-      title: "Winners Announced",
-      description: `Stay tuned as we announce the winners and showcase the incredible projects
-        that came to life during this hackathon.`,
-    },
-    {
-      id: 16,
-      date: "4:00 PM - 5:00 PM",
-      title: "Post-Event Networking and Prize Distribution",
-      description: `Connect with fellow hackers, mentors, and sponsors during this informal
-        networking session. Share feedback and exchange contact information for future
-        collaborations.`,
-    },
-  ];
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const canvasRef = useRef(null);
+  useEffect(() => {
+    const fetchPastEvents = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/past-events`,
+        );
+        const data = await res.json();
 
+        if (data.status === "success") {
+          setData(data.data);
+        } else {
+          setError("Failed to fetch past events");
+        }
+      } catch (err) {
+        console.error("Error fetching past events:", err);
+        setError("Error loading past events");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPastEvents();
+  }, []);
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -251,16 +160,17 @@ export const Timeline = () => {
         ref={canvasRef}
         className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10"
       />
-      <div className="mb-16">
-        <h2 className="text-4xl font-extrabold text-center bg-gradient-to-b from-white to-purple-200/70 text-transparent bg-clip-text mb-4">
-          Event Timeline
+      <div className="mb-16 p-6 md:p-0">
+        <h2 className="md:text-4xl text-3xl font-extrabold text-center bg-gradient-to-b from-white to-purple-200/70 text-transparent bg-clip-text mb-4">
+          Past Events
         </h2>
-        <p className="text-center text-purple-100/70 max-w-xl mx-auto">
-          Follow our schedule to make the most of this hackathon experience
+        <p className="text-center text-purple-100/70 max-w-xl mx-auto text-sm md:text-base">
+          Follow our schedule to make the most of <br />
+          this hackathon experiences
         </p>
       </div>
 
-      <div className="timeline-container">
+      <div className="timeline-container pl-6 pr-2 md:pl-0 md:pr-0">
         <VerticalTimeline lineColor="rgba(168, 85, 247, 0.15)">
           {data.map((item, index) => (
             <VerticalTimelineElement
@@ -278,7 +188,17 @@ export const Timeline = () => {
               contentArrowStyle={{
                 borderRight: "10px solid rgba(168, 85, 247, 0.08)",
               }}
-              date=<strong>{item.date}</strong>
+              date=<strong>
+                {new Date(item.timerDates.startingDate).toLocaleDateString(
+                  "en-US",
+                  { month: "short", day: "numeric" },
+                )}{" "}
+                -{" "}
+                {new Date(item.timerDates.endingDate).toLocaleDateString(
+                  "en-US",
+                  { month: "short", day: "numeric", year: "numeric" },
+                )}
+              </strong>
               dateClassName=""
               iconStyle={{
                 background:
