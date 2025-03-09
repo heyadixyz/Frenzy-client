@@ -85,19 +85,16 @@ export const AdminPanel = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [eventToDelete, setEventToDelete] = useState(null);
 
-  // Filter applicants based on selected event
   const filteredApplicants = applicants.filter(
     (app) => app.eventId === selectedEventId,
   );
 
-  // Handle event form submission (add/edit)
   const handleEventSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     setTimeout(() => {
       if (editingEvent) {
-        // Update existing event
         setEvents(
           events.map((event) =>
             event.id === editingEvent.id
@@ -129,7 +126,7 @@ export const AdminPanel = () => {
       });
 
       setIsLoading(false);
-    }, 800); // Simulate API call
+    }, 800);
   };
 
   const handleEditEvent = (event) => {
@@ -163,7 +160,6 @@ export const AdminPanel = () => {
   const handleSendEmail = (applicantId) => {
     setIsLoading(true);
 
-    // Simulate API call to send email
     setTimeout(() => {
       setApplicants(
         applicants.map((app) =>
@@ -174,7 +170,6 @@ export const AdminPanel = () => {
     }, 1000);
   };
 
-  // Format date for display
   const formatDate = (dateString) => {
     const options = {
       year: "numeric",

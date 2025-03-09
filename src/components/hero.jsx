@@ -8,6 +8,8 @@ import { motion } from "framer-motion";
 export const Hero = () => {
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [type, setType] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -28,6 +30,8 @@ export const Hero = () => {
             isOpen: data.data.isOpen,
             type: data.data.type,
           });
+          setIsOpen(data.data.isOpen);
+          setType(data.data.type);
         } else {
           // No event
           setEventData({ hasEvent: false });
@@ -52,12 +56,10 @@ export const Hero = () => {
   }
 
   if (eventData?.hasEvent) {
-    // Format event description for better display on mobile
     const formattedDescription = eventData.eventTagline
       ? eventData.eventTagline.split("\n").slice(0, 2).join("\n")
       : "";
 
-    // upcoming event with BackgroundLines component
     return (
       <div className="relative w-full">
         <BackgroundLines1
