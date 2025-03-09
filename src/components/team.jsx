@@ -11,10 +11,11 @@ import {
     IconMail
 } from '@tabler/icons-react';
 
+// Update the image size to 100px x 100px and adjust the card dimensions accordingly
 const TeamMember = ({ name, role, imageSrc, socialLinks }) => {
     return (
         <motion.div
-            className="flex flex-col items-center"
+            className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-900/90 to-gray-800/70 rounded-xl border border-gray-700/50 shadow-xl"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -29,19 +30,18 @@ const TeamMember = ({ name, role, imageSrc, socialLinks }) => {
                 }
             }}
         >
-            <div className="relative w-full aspect-square mb-6 group">
-                <div className="relative w-full h-full overflow-hidden rounded-xl border border-white/10 shadow-lg shadow-blue-900/10 transition-all duration-300 group-hover:shadow-xl group-hover:shadow-blue-900/20">
-                    <Image
-                        src={imageSrc}
-                        alt={name}
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                    />
-                </div>
+            {/* Changed image container size to 100px x 100px */}
+            <div className="relative w-[100px] h-[100px] mb-4 rounded-full overflow-hidden">
+                <Image
+                    src={imageSrc}
+                    alt={name}
+                    fill
+                    className="w-full h-full object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                />
             </div>
-            <h3 className="text-white text-xl md:text-2xl font-bold mb-1">{name}</h3>
-            <p className="text-blue-400 text-lg font-medium mb-3">{role}</p>
+            <h3 className="text-lg font-semibold text-white">{name}</h3>
+            <p className="text-blue-400 text-sm">{role}</p>
 
             <motion.div
                 className="flex justify-center space-x-3 mt-1 mb-2"
@@ -165,7 +165,7 @@ const Team = () => {
                         transition={{ delay: 0.5, duration: 0.8 }}
                     ></motion.div>
                 </motion.div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-10">
                     {teamMembers.map((member, index) => (
                         <TeamMember
                             key={index}
