@@ -11,7 +11,6 @@ import {
     IconMail
 } from '@tabler/icons-react';
 
-// Update the image size to 100px x 100px and adjust the card dimensions accordingly
 const TeamMember = ({ name, role, imageSrc, socialLinks }) => {
     return (
         <motion.div
@@ -30,7 +29,6 @@ const TeamMember = ({ name, role, imageSrc, socialLinks }) => {
                 }
             }}
         >
-            {/* Changed image container size to 100px x 100px */}
             <div className="relative w-[100px] h-[100px] mb-4 rounded-full overflow-hidden">
                 <Image
                     src={imageSrc}
@@ -165,7 +163,7 @@ const Team = () => {
                         transition={{ delay: 0.5, duration: 0.8 }}
                     ></motion.div>
                 </motion.div>
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-10">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-10">
                     {teamMembers.map((member, index) => (
                         <TeamMember
                             key={index}
