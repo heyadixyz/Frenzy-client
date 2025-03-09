@@ -3,15 +3,21 @@ import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-export default function EventRegistrationForm() {
+export default function EventRegistrationForm({ eventId }) {
   const [formData, setFormData] = useState({
+    eventId: eventId,
     name: "",
     email: "",
+    mobileNumber: "",
+    department: "",
+    year: "",
     college: "",
-    semester: "",
   });
 
+  const router = useRouter();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -20,10 +26,38 @@ export default function EventRegistrationForm() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form data to be submitted:", formData);
-    // TODO: Add API submission logic here
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/registration/solo`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        },
+      );
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Registration successful!");
+        setFormData({
+          eventId: "",
+          name: "",
+          email: "",
+          mobileNumber: "",
+          department: "",
+          year: "",
+          college: "",
+        });
+        router.push("/");
+      } else {
+        toast.error(data.message);
+      }
+    } catch {
+      toast.error("Could not register, please try again later!");
+    }
   };
 
   return (
@@ -83,6 +117,42 @@ export default function EventRegistrationForm() {
 
             <LabelInputContainer className="mb-5">
               <Label
+                htmlFor="mobileNumber"
+                className="text-sm font-medium text-neutral-300"
+              >
+                Mobile Number*
+              </Label>
+              <Input
+                id="mobileNumber"
+                name="mobileNumber"
+                placeholder="Enter your mobile number"
+                type="tel"
+                value={formData.mobileNumber}
+                onChange={handleChange}
+                required
+              />
+            </LabelInputContainer>
+
+            <LabelInputContainer className="mb-5">
+              <Label
+                htmlFor="department"
+                className="text-sm font-medium text-neutral-300"
+              >
+                Department*
+              </Label>
+              <Input
+                id="department"
+                name="department"
+                placeholder="Enter your department name"
+                type="text"
+                value={formData.department}
+                onChange={handleChange}
+                required
+              />
+            </LabelInputContainer>
+
+            <LabelInputContainer className="mb-5">
+              <Label
                 htmlFor="college"
                 className="text-sm font-medium text-neutral-300"
               >
@@ -99,19 +169,19 @@ export default function EventRegistrationForm() {
               />
             </LabelInputContainer>
 
-            <LabelInputContainer>
+            <LabelInputContainer className="mb-5">
               <Label
-                htmlFor="semester"
+                htmlFor="year"
                 className="text-sm font-medium text-neutral-300"
               >
-                Semester/Year*
+                Year*
               </Label>
               <Input
-                id="semester"
-                name="semester"
-                placeholder="e.g. 3rd Semester / 2nd Year"
+                id="year"
+                name="year"
+                placeholder="e.g. 2nd"
                 type="text"
-                value={formData.semester}
+                value={formData.year}
                 onChange={handleChange}
                 required
               />

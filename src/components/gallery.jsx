@@ -307,7 +307,7 @@ export const Gallery = () => {
                       }
                     >
                       <div
-                        className="relative w-full overflow-hidden"
+                        className="relative w-full overflow-hidden h-[345px] rounded-lg"
                         style={{ paddingBottom: aspectRatio }}
                       >
                         <Image

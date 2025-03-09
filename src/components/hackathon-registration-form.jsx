@@ -2,27 +2,31 @@
 import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
-export default function HackathonRegistrationForm() {
+export default function HackathonRegistrationForm({ eventId }) {
   const [formData, setFormData] = useState({
+    eventId: eventId,
     teamName: "",
     topicName: "",
     topicDescription: "",
-    teamLeaderName: "",
-    teamLeaderMobileNumber: "",
-    teamLeaderEmail: "",
-    teamLeaderDepartment: "",
-    teamLeaderYear: "",
+    teamLeader: {
+      name: "",
+      email: "",
+      mobileNumber: "",
+      department: "",
+      year: "",
+    },
     numberOfMembers: 2,
-    members: Array(4).fill({
+    teamMembers: Array(4).fill({
       name: "",
       department: "",
       year: "",
-      githubLink: "",
     }),
   });
-
+  const router = useRouter();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -31,15 +35,25 @@ export default function HackathonRegistrationForm() {
     });
   };
 
+  const handleTeamLeaderChange = (field, value) => {
+    setFormData({
+      ...formData,
+      teamLeader: {
+        ...formData.teamLeader,
+        [field]: value,
+      },
+    });
+  };
+
   const handleMemberChange = (index, field, value) => {
-    const updatedMembers = [...formData.members];
+    const updatedMembers = [...formData.teamMembers];
     updatedMembers[index] = {
       ...updatedMembers[index],
       [field]: value,
     };
     setFormData({
       ...formData,
-      members: updatedMembers,
+      teamMembers: updatedMembers,
     });
   };
 
@@ -51,16 +65,61 @@ export default function HackathonRegistrationForm() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const submissionData = {
-      ...formData,
-      members: formData.members.slice(0, formData.numberOfMembers - 1), // -1 because team leader is not included here
+      eventId: formData.eventId,
+      teamName: formData.teamName,
+      topicName: formData.topicName,
+      topicDescription: formData.topicDescription,
+      teamLeader: formData.teamLeader,
+      numberOfMembers: formData.numberOfMembers.toString(),
+      teamMembers: formData.teamMembers.slice(0, formData.numberOfMembers - 1), // -1 because team leader is not included here
     };
 
-    console.log("Form data to be submitted:", submissionData);
-    // TODO: Add API submission logic here
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/registration/team`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(submissionData),
+        },
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success("Team registration successful!");
+        setFormData({
+          eventId: "",
+          teamName: "",
+          topicName: "",
+          topicDescription: "",
+          teamLeader: {
+            name: "",
+            email: "",
+            mobileNumber: "",
+            department: "",
+            year: "",
+          },
+          numberOfMembers: 2,
+          teamMembers: Array(4).fill({
+            name: "",
+            department: "",
+            year: "",
+          }),
+        });
+        router.push("/");
+      } else {
+        const errorData = await response.json();
+        toast.error("Registration failed. Please try again.");
+      }
+    } catch (error) {
+      toast.error("An error occurred. Please try again later.");
+    }
   };
 
   return (
@@ -151,11 +210,10 @@ export default function HackathonRegistrationForm() {
               <Label htmlFor="teamLeaderName">Full Name*</Label>
               <Input
                 id="teamLeaderName"
-                name="teamLeaderName"
                 placeholder="Enter team leader's name"
                 type="text"
-                value={formData.teamLeaderName}
-                onChange={handleChange}
+                value={formData.teamLeader.name}
+                onChange={(e) => handleTeamLeaderChange("name", e.target.value)}
                 required
               />
             </LabelInputContainer>
@@ -165,14 +223,15 @@ export default function HackathonRegistrationForm() {
                 <Label htmlFor="teamLeaderMobileNumber">Mobile Number*</Label>
                 <Input
                   id="teamLeaderMobileNumber"
-                  name="teamLeaderMobileNumber"
                   placeholder="Enter mobile number"
                   type="tel"
-                  value={formData.teamLeaderMobileNumber}
-                  onChange={handleChange}
+                  value={formData.teamLeader.mobileNumber}
+                  onChange={(e) =>
+                    handleTeamLeaderChange("mobileNumber", e.target.value)
+                  }
                   required
                   maxLength={10}
-                  numbersonly={true}
+                  numbersonly="true"
                 />
               </LabelInputContainer>
 
@@ -180,11 +239,12 @@ export default function HackathonRegistrationForm() {
                 <Label htmlFor="teamLeaderEmail">Email Address*</Label>
                 <Input
                   id="teamLeaderEmail"
-                  name="teamLeaderEmail"
                   placeholder="Enter email address"
                   type="email"
-                  value={formData.teamLeaderEmail}
-                  onChange={handleChange}
+                  value={formData.teamLeader.email}
+                  onChange={(e) =>
+                    handleTeamLeaderChange("email", e.target.value)
+                  }
                   required
                 />
               </LabelInputContainer>
@@ -192,28 +252,28 @@ export default function HackathonRegistrationForm() {
 
             <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mt-4">
               <LabelInputContainer className="flex-1">
-                <Label htmlFor="teamLeaderDepartment">
-                  Department (Optional)
-                </Label>
+                <Label htmlFor="teamLeaderDepartment">Department*</Label>
                 <Input
                   id="teamLeaderDepartment"
-                  name="teamLeaderDepartment"
                   placeholder="e.g. Computer Science"
                   type="text"
-                  value={formData.teamLeaderDepartment}
-                  onChange={handleChange}
+                  value={formData.teamLeader.department}
+                  onChange={(e) =>
+                    handleTeamLeaderChange("department", e.target.value)
+                  }
                 />
               </LabelInputContainer>
 
               <LabelInputContainer className="flex-1">
-                <Label htmlFor="teamLeaderYear">Year/Semester (Optional)</Label>
+                <Label htmlFor="teamLeaderYear">Year*</Label>
                 <Input
                   id="teamLeaderYear"
-                  name="teamLeaderYear"
-                  placeholder="e.g. 3rd Year / 6th Sem"
+                  placeholder="e.g. 3rd"
                   type="text"
-                  value={formData.teamLeaderYear}
-                  onChange={handleChange}
+                  value={formData.teamLeader.year}
+                  onChange={(e) =>
+                    handleTeamLeaderChange("year", e.target.value)
+                  }
                 />
               </LabelInputContainer>
             </div>
@@ -233,7 +293,7 @@ export default function HackathonRegistrationForm() {
                     id={`memberName${index}`}
                     placeholder="Enter member's name"
                     type="text"
-                    value={formData.members[index]?.name || ""}
+                    value={formData.teamMembers[index]?.name || ""}
                     onChange={(e) =>
                       handleMemberChange(index, "name", e.target.value)
                     }
@@ -244,13 +304,13 @@ export default function HackathonRegistrationForm() {
                 <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                   <LabelInputContainer className="flex-1">
                     <Label htmlFor={`memberDepartment${index}`}>
-                      Department (Optional)
+                      Department*
                     </Label>
                     <Input
                       id={`memberDepartment${index}`}
                       placeholder="e.g. Computer Science"
                       type="text"
-                      value={formData.members[index]?.department || ""}
+                      value={formData.teamMembers[index]?.department || ""}
                       onChange={(e) =>
                         handleMemberChange(index, "department", e.target.value)
                       }
@@ -258,35 +318,18 @@ export default function HackathonRegistrationForm() {
                   </LabelInputContainer>
 
                   <LabelInputContainer className="flex-1">
-                    <Label htmlFor={`memberYear${index}`}>
-                      Year/Semester (Optional)
-                    </Label>
+                    <Label htmlFor={`memberYear${index}`}>Year*</Label>
                     <Input
                       id={`memberYear${index}`}
-                      placeholder="e.g. 3rd Year / 6th Sem"
+                      placeholder="e.g. 3rd"
                       type="text"
-                      value={formData.members[index]?.year || ""}
+                      value={formData.teamMembers[index]?.year || ""}
                       onChange={(e) =>
                         handleMemberChange(index, "year", e.target.value)
                       }
                     />
                   </LabelInputContainer>
                 </div>
-
-                <LabelInputContainer className="mt-4">
-                  <Label htmlFor={`memberGithub${index}`}>
-                    GitHub Profile (Optional)
-                  </Label>
-                  <Input
-                    id={`memberGithub${index}`}
-                    placeholder="https://github.com/username"
-                    type="url"
-                    value={formData.members[index]?.githubLink || ""}
-                    onChange={(e) =>
-                      handleMemberChange(index, "githubLink", e.target.value)
-                    }
-                  />
-                </LabelInputContainer>
               </div>
             ),
           )}
