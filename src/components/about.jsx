@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const useIntersectionObserver = (options = {}) => {
     const ref = useRef(null);
@@ -92,9 +93,11 @@ const AboutUs = () => {
                                     and knowledge sharing, we aim to create an ecosystem where technology drives positive change.
                                 </p>
                                 <div className="pt-4">
-                                    <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30">
-                                        Join Our Community
-                                    </button>
+                                    <Link href="/#community">
+                                        <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30">
+                                            Join Our Community
+                                        </button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
