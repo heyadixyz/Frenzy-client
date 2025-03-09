@@ -74,7 +74,7 @@ const Navbar = () => {
     }, [isMenuOpen]);
 
     return (
-        <nav className="sticky top-5 z-[100] bg-[rgba(40,40,42,0.6)] backdrop-filter backdrop-blur-[10px] border border-white/10 px-4 py-2 w-[90%] lg:w-[63%] 2xl:w-[65%] mx-auto rounded-[14px] will-change-transform">
+        <nav className="sticky top-5 z-[100] bg-[rgba(40,40,42,0.6)] backdrop-filter backdrop-blur-[10px] border border-white/10 px-4 py-2 w-[90%] lg:w-[65%] xl:w-[75%] 2xl:w-[65%] mx-auto rounded-[14px] will-change-transform">
             <div className="max-w-7xl mx-auto flex items-center justify-between h-full">
                 <div className="flex items-center space-x-3">
                     <span className="text-white text-2xl font-extrabold tracking-tight">Tech Frenzy</span>
