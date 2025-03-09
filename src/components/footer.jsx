@@ -6,24 +6,56 @@ import Link from 'next/link';
 const Footer = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('Please enter a valid email address');
+  const [isLoading, setIsLoading] = useState(false);
   const emailInputRef = useRef(null);
 
-  const handleNewsletterSubmit = (e) => {
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     const email = emailInputRef.current.value;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
+      setErrorMessage('Please enter a valid email address');
       setShowError(true);
       return;
     }
 
     setShowError(false);
-    setShowSuccess(true);
-    emailInputRef.current.value = '';
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 5000);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('https://pssvd9k9-81.inc1.devtunnels.ms/api/news-letter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setShowSuccess(true);
+        emailInputRef.current.value = '';
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 5000);
+      } else {
+        if (data.message === 'Already subscribed to news letter.') {
+          setErrorMessage('This email is already subscribed');
+        } else {
+          setErrorMessage('Failed to subscribe. Please try again later.');
+        }
+        setShowError(true);
+      }
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      setErrorMessage('Connection error. Please try again later.');
+      setShowError(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const socialLinks = [
@@ -100,16 +132,28 @@ const Footer = () => {
                   required
                   placeholder="Your email address"
                   className="bg-gray-800/80 text-white placeholder-gray-400 px-4 py-3 pr-28 rounded-lg w-full border border-gray-700/60 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all"
+                  disabled={isLoading}
                 />
                 <button
                   type="submit"
-                  className="absolute right-1.5 top-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md transition-colors font-medium text-sm"
+                  className={`absolute right-1.5 top-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md transition-colors font-medium text-sm ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                  disabled={isLoading}
                 >
-                  Subscribe
+                  {isLoading ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Wait...
+                    </span>
+                  ) : (
+                    'Subscribe'
+                  )}
                 </button>
                 {showError && (
                   <div className="absolute -bottom-6 left-0 text-xs text-red-400">
-                    Please enter a valid email address
+                    {errorMessage}
                   </div>
                 )}
               </div>
@@ -118,7 +162,7 @@ const Footer = () => {
         </div>
         {showSuccess && (
           <div className="mt-4 text-sm text-center text-blue-400 font-medium">
-            Thank you for subscribing. We've sent a confirmation email to your inbox.
+            Thank you for subscribing. You have been added to our newsletter.
           </div>
         )}
       </div>
