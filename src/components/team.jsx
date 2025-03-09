@@ -90,7 +90,7 @@ const Team = () => {
         {
             name: "Robert Johnson",
             role: "Backend Developer",
-            imageSrc: "https://workik-widget-assets.s3.amazonaws.com/widget-assets/images/expert1.png",
+            imageSrc: "/profile2.jpg",
             socialLinks: [
                 { url: "https://twitter.com/", icon: <IconBrandTwitter className="h-5 w-5 text-white" /> },
                 { url: "https://facebook.com/", icon: <IconBrandFacebook className="h-5 w-5 text-white" /> },
@@ -101,7 +101,7 @@ const Team = () => {
         {
             name: "Emily Williams",
             role: "Project Manager",
-            imageSrc: "https://workik-widget-assets.s3.amazonaws.com/widget-assets/images/expert2.png",
+            imageSrc: "/profile2.jpg",
             socialLinks: [
                 { url: "https://twitter.com/", icon: <IconBrandTwitter className="h-5 w-5 text-white" /> },
                 { url: "https://facebook.com/", icon: <IconBrandFacebook className="h-5 w-5 text-white" /> },
@@ -112,7 +112,7 @@ const Team = () => {
         {
             name: "Daniel Brown",
             role: "DevOps Engineer",
-            imageSrc: "https://workik-widget-assets.s3.amazonaws.com/widget-assets/images/expert1.png",
+            imageSrc: "/profile2.jpg",
             socialLinks: [
                 { url: "https://twitter.com/", icon: <IconBrandTwitter className="h-5 w-5 text-white" /> },
                 { url: "https://facebook.com/", icon: <IconBrandFacebook className="h-5 w-5 text-white" /> },
@@ -123,7 +123,7 @@ const Team = () => {
         {
             name: "Sophia Garcia",
             role: "Frontend Developer",
-            imageSrc: "https://workik-widget-assets.s3.amazonaws.com/widget-assets/images/expert2.png",
+            imageSrc: "/profile2.jpg",
             socialLinks: [
                 { url: "https://twitter.com/", icon: <IconBrandTwitter className="h-5 w-5 text-white" /> },
                 { url: "https://facebook.com/", icon: <IconBrandFacebook className="h-5 w-5 text-white" /> },
