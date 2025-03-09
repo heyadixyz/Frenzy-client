@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 
-export const EventCountdown = ({ eventTime }) => {
+export const EventCountdown = ({ eventTime, endingTime }) => {
   const [timeLeft, setTimeLeft] = useState(null);
   const [isFinished, setIsFinished] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -124,7 +124,7 @@ export const EventCountdown = ({ eventTime }) => {
             animate={{ opacity: 1, scale: 1 }}
             className="mb-8 py-3 px-8 bg-green-600/20 rounded-full border border-green-500"
           >
-            <span className="text-2xl font-bold text-green-400">
+            <span className="text-xl md:text-2xl font-bold text-green-400">
               Event is Live Now!
             </span>
           </motion.div>
@@ -139,6 +139,26 @@ export const EventCountdown = ({ eventTime }) => {
             <TimeBlock value={timeLeft.seconds} label="Seconds" />
           </motion.div>
         )}
+        <span className="text-white text-sm md:text-lg">
+          <p>
+            {new Date(eventTime).toLocaleString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}{" "}
+            -{" "}
+            {endingTime &&
+              new Date(endingTime).toLocaleString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+          </p>
+        </span>
       </AnimatePresence>
 
       {isFinished ? (
