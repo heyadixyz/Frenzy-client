@@ -40,7 +40,7 @@ const AboutUs = () => {
     const [whatWeDoRef, whatWeDoVisible] = useIntersectionObserver({ threshold: 0.2, once: true });
 
     return (
-        <section id="about-us" className="py-16 px-4 relative overflow-hidden">
+        <section id="about-us" className="pt-16 pb-0 px-4 bg-[transparent] relative overflow-hidden ">
             <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-blue-500/10 rounded-full filter blur-[100px] -z-10"></div>
             <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-indigo-500/10 rounded-full filter blur-[100px] -z-10"></div>
 
