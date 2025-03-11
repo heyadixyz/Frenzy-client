@@ -7,6 +7,7 @@ import {
   VerticalTimelineElement,
 } from "react-vertical-timeline-component";
 import "react-vertical-timeline-component/style.min.css";
+import { toast } from "sonner";
 
 export const Timeline = () => {
   const [data, setData] = useState([]);
@@ -28,7 +29,7 @@ export const Timeline = () => {
           setError("Failed to fetch past events");
         }
       } catch (err) {
-        console.error("Error fetching past events:", err);
+        toast.error("Error fetching events");
         setError("Error loading past events");
       } finally {
         setLoading(false);

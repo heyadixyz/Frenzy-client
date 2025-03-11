@@ -4,6 +4,7 @@ import { Sparkles1 } from "./sparkels1";
 import { BackgroundLines1 } from "./sparkels2";
 import { EventCountdown } from "./event-timer";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 export const Hero = () => {
   const [eventData, setEventData] = useState(null);
@@ -37,7 +38,7 @@ export const Hero = () => {
           setEventData({ hasEvent: false });
         }
       } catch (error) {
-        console.error("Error fetching event data:", error);
+        toast.error("Something went wrong while fetching event data!");
         setEventData({ hasEvent: false });
       } finally {
         setLoading(false);
