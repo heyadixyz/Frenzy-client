@@ -17,11 +17,11 @@ export default function VerifyOtpPage() {
 
   useEffect(() => {
     const otpToken = localStorage.getItem("otpToken");
-    // if (!otpToken) {
-    //   toast.error("Login session expired. Please login again.");
-    //   router.push("/admin-auth/login");
-    //   return;
-    // }
+    if (!otpToken) {
+      toast.error("Login session expired. Please login again.");
+      router.push("/admin-auth/login");
+      return;
+    }
 
     // Setup countdown timer
     const timer = setInterval(() => {

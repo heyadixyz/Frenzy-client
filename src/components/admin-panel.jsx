@@ -5,156 +5,211 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { TabsList, TabsTrigger, TabsContent, Tabs } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-
-// Dummy data for demonstration
-const DUMMY_EVENTS = [
-  {
-    id: "evt001",
-    title: "Winter Hackathon 2024",
-    description: "Build innovative solutions for climate challenges",
-    startDate: "2024-02-15T09:00:00",
-    endDate: "2024-02-17T18:00:00",
-    posterUrl: "https://images.unsplash.com/photo-1605379399642-870262d3d051",
-    registrationCount: 24,
-  },
-  {
-    id: "evt002",
-    title: "AI Solutions Challenge",
-    description: "Create AI tools to solve everyday problems",
-    startDate: "2024-03-20T10:00:00",
-    endDate: "2024-03-21T17:00:00",
-    posterUrl: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789",
-    registrationCount: 18,
-  },
-];
-
-const DUMMY_APPLICANTS = [
-  {
-    id: "app001",
-    eventId: "evt001",
-    teamName: "CodeCrafters",
-    teamLeaderName: "Sarah Johnson",
-    teamLeaderEmail: "sarah@example.com",
-    teamLeaderMobile: "9876543210",
-    submittedAt: "2024-01-15T14:30:00",
-    members: 4,
-    projectTopic: "Smart Urban Farming Solution",
-    emailSent: false,
-  },
-  {
-    id: "app002",
-    eventId: "evt001",
-    teamName: "ByteBusters",
-    teamLeaderName: "Alex Chen",
-    teamLeaderEmail: "alex@example.com",
-    teamLeaderMobile: "8765432109",
-    submittedAt: "2024-01-16T10:45:00",
-    members: 3,
-    projectTopic: "AR Navigation for Indoor Spaces",
-    emailSent: true,
-  },
-  {
-    id: "app003",
-    eventId: "evt002",
-    teamName: "AI Innovators",
-    teamLeaderName: "Maya Patel",
-    teamLeaderEmail: "maya@example.com",
-    teamLeaderMobile: "7654321098",
-    submittedAt: "2024-01-20T09:15:00",
-    members: 2,
-    projectTopic: "Emotion Analysis for Content Creators",
-    emailSent: false,
-  },
-];
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 export const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState("events");
-  const [events, setEvents] = useState(DUMMY_EVENTS);
-  const [applicants, setApplicants] = useState(DUMMY_APPLICANTS);
-  const [selectedEventId, setSelectedEventId] = useState(events[0]?.id);
+  const [events, setEvents] = useState([]);
+  const [applicants, setApplicants] = useState([]);
+  const [selectedEventId, setSelectedEventId] = useState("");
   const [newEvent, setNewEvent] = useState({
     title: "",
     description: "",
-    startDate: "",
-    endDate: "",
-    posterUrl: "",
+    type: "team",
+    timerDates: {
+      startingDate: "",
+      endingDate: "",
+    },
+    registrationDates: {
+      startingDate: "",
+      endingDate: "",
+    },
   });
   const [editingEvent, setEditingEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [eventToDelete, setEventToDelete] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+      toast.error("You must be logged in to access this page");
+      router.push("/admin-login");
+      return;
+    }
+
+    fetchEvents();
+  }, [router]);
+
+  const fetchEvents = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch(
+        "https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/all",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        setEvents(data.data);
+        if (data.data.length > 0 && !selectedEventId) {
+          setSelectedEventId(data.data[0]._id);
+        }
+      } else {
+        toast.error(data.message || "Failed to fetch events");
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      toast.error("Something went wrong while fetching events");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredApplicants = applicants.filter(
     (app) => app.eventId === selectedEventId,
   );
 
-  const handleEventSubmit = (e) => {
+  const handleEventSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => {
-      if (editingEvent) {
-        setEvents(
-          events.map((event) =>
-            event.id === editingEvent.id
-              ? { ...event, ...newEvent, id: editingEvent.id }
-              : event,
-          ),
-        );
-        setEditingEvent(null);
-      } else {
-        // Add new event
-        const newId = `evt${String(events.length + 1).padStart(3, "0")}`;
-        setEvents([
-          ...events,
-          {
-            ...newEvent,
-            id: newId,
-            registrationCount: 0,
-          },
-        ]);
-      }
+    try {
+      const token = localStorage.getItem("adminToken");
+      const endpoint = editingEvent
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin/event/update/${editingEvent._id}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/admin/event/new`;
 
-      // Reset form
-      setNewEvent({
-        title: "",
-        description: "",
-        startDate: "",
-        endDate: "",
-        posterUrl: "",
+      const method = editingEvent ? "PATCH" : "POST";
+
+      const eventData = {
+        ...newEvent,
+        timerDates: {
+          startingDate: new Date(
+            newEvent.timerDates.startingDate,
+          ).toISOString(),
+          endingDate: new Date(newEvent.timerDates.endingDate).toISOString(),
+        },
+      };
+
+      const response = await fetch(endpoint, {
+        method: method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(eventData),
       });
 
-      setIsLoading(false);
-    }, 800);
-  };
+      const data = await response.json();
 
+      if (data.status === "success") {
+        const eventId = editingEvent ? editingEvent._id : data.data._id;
+
+        const regResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/event/setting`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              eventId: eventId,
+              startingDate: new Date(
+                newEvent.registrationDates.startingDate,
+              ).toISOString(),
+              endingDate: new Date(
+                newEvent.registrationDates.endingDate,
+              ).toISOString(),
+            }),
+          },
+        );
+
+        const regData = await regResponse.json();
+
+        if (regData.status === "success") {
+          toast.success(
+            editingEvent
+              ? "Event updated successfully"
+              : "Event created successfully",
+          );
+          setNewEvent({
+            title: "",
+            description: "",
+            type: "team",
+            timerDates: {
+              startingDate: "",
+              endingDate: "",
+            },
+            registrationDates: {
+              startingDate: "",
+              endingDate: "",
+            },
+          });
+          setEditingEvent(null);
+
+          fetchEvents();
+        } else {
+          toast.error(
+            "Event created but failed to set registration dates: " +
+              regData.message,
+          );
+        }
+      } else {
+        toast.error(data.message || "Operation failed");
+      }
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleEditEvent = (event) => {
     setEditingEvent(event);
+
+    const formatDateForInput = (dateString) => {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+
+      const localISOTime = new Date(
+        date.getTime() - date.getTimezoneOffset() * 60000,
+      )
+        .toISOString()
+        .substring(0, 16);
+
+      return localISOTime;
+    };
+
     setNewEvent({
       title: event.title,
       description: event.description,
-      startDate: event.startDate.substring(0, 16),
-      endDate: event.endDate.substring(0, 16),
-      posterUrl: event.posterUrl,
+      type: event.type || "team",
+      timerDates: {
+        startingDate: formatDateForInput(event.timerDates.startingDate),
+        endingDate: formatDateForInput(event.timerDates.endingDate),
+      },
+      registrationDates: {
+        startingDate: event.registrationDates
+          ? formatDateForInput(event.registrationDates.startingDate)
+          : "",
+        endingDate: event.registrationDates
+          ? formatDateForInput(event.registrationDates.endingDate)
+          : "",
+      },
     });
     setActiveTab("events");
-  };
-
-  const handleDeleteEventClick = (event) => {
-    setEventToDelete(event);
-    setShowConfirmation(true);
-  };
-
-  const confirmDeleteEvent = () => {
-    setEvents(events.filter((event) => event.id !== eventToDelete.id));
-    setShowConfirmation(false);
-    setEventToDelete(null);
-  };
-
-  const cancelDeleteEvent = () => {
-    setShowConfirmation(false);
-    setEventToDelete(null);
   };
 
   const handleSendEmail = (applicantId) => {
@@ -182,7 +237,7 @@ export const AdminPanel = () => {
   };
 
   return (
-    <div className="container w-full mx-auto p-6 bg-black text-neutral-200 min-h-screen">
+    <div className="container w-full mx-auto p-6 text-neutral-200 min-h-screen">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 inline-block text-transparent bg-clip-text">
@@ -317,17 +372,39 @@ export const AdminPanel = () => {
                     />
                   </LabelInputContainer>
 
+                  <LabelInputContainer>
+                    <Label htmlFor="eventType">Event Type*</Label>
+                    <select
+                      id="eventType"
+                      value={newEvent.type}
+                      onChange={(e) =>
+                        setNewEvent({
+                          ...newEvent,
+                          type: e.target.value,
+                        })
+                      }
+                      className="bg-zinc-800 text-white rounded-md px-3 py-2 w-full"
+                      required
+                    >
+                      <option value="team">Team</option>
+                      <option value="solo">Solo</option>
+                    </select>
+                  </LabelInputContainer>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <LabelInputContainer>
                       <Label htmlFor="startDate">Start Date/Time*</Label>
                       <Input
                         id="startDate"
                         type="datetime-local"
-                        value={newEvent.startDate}
+                        value={newEvent.timerDates.startingDate}
                         onChange={(e) =>
                           setNewEvent({
                             ...newEvent,
-                            startDate: e.target.value,
+                            timerDates: {
+                              ...newEvent.timerDates,
+                              startingDate: e.target.value,
+                            },
                           })
                         }
                         required
@@ -339,55 +416,73 @@ export const AdminPanel = () => {
                       <Input
                         id="endDate"
                         type="datetime-local"
-                        value={newEvent.endDate}
+                        value={newEvent.timerDates.endingDate}
                         onChange={(e) =>
-                          setNewEvent({ ...newEvent, endDate: e.target.value })
+                          setNewEvent({
+                            ...newEvent,
+                            timerDates: {
+                              ...newEvent.timerDates,
+                              endingDate: e.target.value,
+                            },
+                          })
                         }
                         required
                       />
                     </LabelInputContainer>
                   </div>
+                  <h4 className="font-bold text-base mt-4 mb-3">
+                    Registration Period
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <LabelInputContainer>
+                      <Label htmlFor="regStartDate">
+                        Registration Start Date*
+                      </Label>
+                      <Input
+                        id="regStartDate"
+                        type="datetime-local"
+                        value={newEvent.registrationDates.startingDate}
+                        onChange={(e) => {
+                          setNewEvent({
+                            ...newEvent,
+                            registrationDates: {
+                              ...newEvent.registrationDates,
+                              startingDate: e.target.value,
+                            },
+                          });
+                        }}
+                        required
+                      />
+                    </LabelInputContainer>
 
-                  <LabelInputContainer>
-                    <Label htmlFor="posterUrl">Poster URL (Optional)</Label>
-                    <Input
-                      id="posterUrl"
-                      placeholder="https://example.com/image.jpg"
-                      value={newEvent.posterUrl}
-                      onChange={(e) =>
-                        setNewEvent({ ...newEvent, posterUrl: e.target.value })
-                      }
-                    />
-                  </LabelInputContainer>
-
+                    <LabelInputContainer>
+                      <Label htmlFor="regEndDate">Registration End Date*</Label>
+                      <Input
+                        id="regEndDate"
+                        type="datetime-local"
+                        value={newEvent.registrationDates.endingDate}
+                        onChange={(e) =>
+                          setNewEvent({
+                            ...newEvent,
+                            registrationDates: {
+                              ...newEvent.registrationDates,
+                              endingDate: e.target.value,
+                            },
+                          })
+                        }
+                        required
+                      />
+                    </LabelInputContainer>
+                  </div>
                   <div className="flex gap-3">
                     <Button
                       type="submit"
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
                       disabled={isLoading}
                     >
                       {isLoading ? (
                         <span className="flex items-center gap-2">
-                          <svg
-                            className="animate-spin h-4 w-4"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
+                          <Loader2 className="h-4 w-4 animate-spin" />
                           Processing...
                         </span>
                       ) : editingEvent ? (
@@ -399,15 +494,21 @@ export const AdminPanel = () => {
                     {editingEvent && (
                       <Button
                         type="button"
-                        className="bg-neutral-700 hover:bg-neutral-600"
+                        className="bg-neutral-700 hover:bg-neutral-600 cursor-pointer"
                         onClick={() => {
                           setEditingEvent(null);
                           setNewEvent({
                             title: "",
                             description: "",
-                            startDate: "",
-                            endDate: "",
-                            posterUrl: "",
+                            type: "team",
+                            timerDates: {
+                              startingDate: "",
+                              endingDate: "",
+                            },
+                            registrationDates: {
+                              startingDate: "",
+                              endingDate: "",
+                            },
                           });
                         }}
                       >
@@ -432,7 +533,11 @@ export const AdminPanel = () => {
                 </div>
 
                 <div className="space-y-4">
-                  {events.length === 0 ? (
+                  {isLoading ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                    </div>
+                  ) : events.length === 0 ? (
                     <div className="text-center py-8 text-neutral-400">
                       No events found. Create your first event.
                     </div>
@@ -445,30 +550,32 @@ export const AdminPanel = () => {
                       )
                       .map((event) => (
                         <div
-                          key={event.id}
+                          key={event._id}
                           className="border border-neutral-800 rounded-lg p-4 hover:bg-neutral-800/50 transition-colors"
                         >
                           <div className="flex flex-col md:flex-row gap-4">
-                            {event.posterUrl && (
+                            {event.images && event.images.length > 0 ? (
                               <div className="md:w-1/4">
                                 <div
                                   className="h-32 rounded-lg bg-cover bg-center"
                                   style={{
-                                    backgroundImage: `url(${event.posterUrl})`,
+                                    backgroundImage: `url(https://pssvd9k9-81.inc1.devtunnels.ms${event.images[0]})`,
                                   }}
                                 ></div>
                               </div>
-                            )}
+                            ) : null}
                             <div
                               className={
-                                event.posterUrl ? "md:w-3/4" : "w-full"
+                                event.images && event.images.length > 0
+                                  ? "md:w-3/4"
+                                  : "w-full"
                               }
                             >
                               <div className="flex flex-col md:flex-row justify-between mb-2">
                                 <h4 className="font-medium text-lg">
                                   {event.title}
                                 </h4>
-                                <div className="flex items-center gap-1 text-blue-500 text-sm">
+                                <div className="flex items-center gap-2 text-blue-500 text-sm">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="16"
@@ -483,7 +590,9 @@ export const AdminPanel = () => {
                                     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                                     <circle cx="9" cy="7" r="4" />
                                   </svg>
-                                  {event.registrationCount} registrations
+                                  <span className="capitalize">
+                                    {event.type} event
+                                  </span>
                                 </div>
                               </div>
                               <p className="text-neutral-400 text-sm mb-3 line-clamp-2">
@@ -491,13 +600,13 @@ export const AdminPanel = () => {
                               </p>
                               <div className="flex flex-wrap gap-2 mb-4">
                                 <span className="text-xs py-1 px-2 bg-neutral-800 rounded-full text-neutral-300">
-                                  {formatDate(event.startDate)}
+                                  {formatDate(event.timerDates.startingDate)}
                                 </span>
                                 <span className="text-xs py-1 px-2 bg-neutral-800 rounded-full text-neutral-300">
                                   to
                                 </span>
                                 <span className="text-xs py-1 px-2 bg-neutral-800 rounded-full text-neutral-300">
-                                  {formatDate(event.endDate)}
+                                  {formatDate(event.timerDates.endingDate)}
                                 </span>
                               </div>
                               <div className="flex gap-2">
@@ -507,13 +616,6 @@ export const AdminPanel = () => {
                                   onClick={() => handleEditEvent(event)}
                                 >
                                   Edit
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  className="bg-red-900/30 hover:bg-red-900/50 text-red-400"
-                                  onClick={() => handleDeleteEventClick(event)}
-                                >
-                                  Delete
                                 </Button>
                               </div>
                             </div>
