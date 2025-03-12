@@ -7,7 +7,15 @@ import { TabsList, TabsTrigger, TabsContent, Tabs } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Loader2, Mail, Trash2, X, Check, FileEdit } from "lucide-react";
+import {
+  Loader2,
+  Mail,
+  Trash2,
+  X,
+  Check,
+  FileEdit,
+  Upload,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -55,6 +63,87 @@ export const AdminPanel = () => {
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
   const [selectedApplicantDetails, setSelectedApplicantDetails] =
     useState(null);
+  const [eventImages, setEventImages] = useState([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
+
+  const handleImageUpload = async (eventId) => {
+    if (eventImages.length === 0) {
+      toast.error("Please select at least one image");
+      return;
+    }
+
+    if (eventImages.length > 20) {
+      toast.error("Maximum 20 images are allowed");
+      return;
+    }
+
+    setUploadingImages(true);
+
+    try {
+      const token = localStorage.getItem("adminToken");
+      const formData = new FormData();
+
+      eventImages.forEach((file) => {
+        formData.append("image", file);
+      });
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/event/image/${eventId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        toast.success("Images uploaded successfully");
+        setEventImages([]);
+        // Refresh events list to see the updated images
+        fetchEvents();
+      } else {
+        toast.error(data.message || "Failed to upload images");
+      }
+    } catch (error) {
+      toast.error("Something went wrong while uploading images");
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const FileInput = ({ onChange, multiple = false }) => {
+    const inputRef = React.useRef(null);
+
+    return (
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="bg-neutral-800 hover:bg-neutral-700 flex items-center gap-2"
+        >
+          <Upload className="h-4 w-4" />
+          Choose Files
+        </Button>
+        <input
+          type="file"
+          ref={inputRef}
+          onChange={onChange}
+          multiple={multiple}
+          accept="image/*"
+          className="hidden"
+        />
+        {eventImages.length > 0 && (
+          <span className="text-sm text-neutral-400">
+            {eventImages.length} file(s) selected
+          </span>
+        )}
+      </div>
+    );
+  };
 
   const fetchApplicants = async (eventId) => {
     if (!eventId) return;
@@ -793,6 +882,85 @@ export const AdminPanel = () => {
                     )}
                   </div>
                 </form>
+              </div>
+              <div className="border-t border-neutral-800 mt-4 pt-4">
+                <h4 className="font-medium text-base mb-3">
+                  Upload Event Images
+                </h4>
+                <p className="text-sm text-neutral-400 mb-3">
+                  Upload up to 10 images for the selected event. These will be
+                  displayed on the event page.
+                </p>
+
+                <div className="space-y-4">
+                  <select
+                    className="bg-neutral-800 border border-neutral-700 rounded-md px-3 py-2 w-full"
+                    value={selectedEventId}
+                    onChange={(e) => setSelectedEventId(e.target.value)}
+                  >
+                    <option value="">Select an event</option>
+                    {events.map((event) => (
+                      <option key={event._id} value={event._id}>
+                        {event.title}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="flex flex-col gap-4">
+                    <FileInput
+                      onChange={(e) =>
+                        setEventImages(Array.from(e.target.files))
+                      }
+                      multiple={true}
+                    />
+
+                    {eventImages.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {Array.from(eventImages).map((file, index) => (
+                          <div
+                            key={index}
+                            className="relative group bg-neutral-800 rounded-md overflow-hidden h-20 w-20"
+                          >
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={`Preview ${index}`}
+                              className="h-full w-full object-cover"
+                            />
+                            <button
+                              onClick={() => {
+                                setEventImages((prev) =>
+                                  prev.filter((_, i) => i !== index),
+                                );
+                              }}
+                              className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                            >
+                              <X className="h-6 w-6 text-white" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <Button
+                      onClick={() => handleImageUpload(selectedEventId)}
+                      disabled={
+                        !selectedEventId ||
+                        eventImages.length === 0 ||
+                        uploadingImages
+                      }
+                      className="bg-blue-600 hover:bg-blue-700 text-white w-fit"
+                    >
+                      {uploadingImages ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Uploading...
+                        </span>
+                      ) : (
+                        "Upload Images"
+                      )}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
 
