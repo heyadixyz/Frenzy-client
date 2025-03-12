@@ -7,7 +7,16 @@ import { TabsList, TabsTrigger, TabsContent, Tabs } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail, Trash2, X, Check, FileEdit } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState("events");
@@ -32,7 +41,281 @@ export const AdminPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const router = useRouter();
+  const [teamApplicants, setTeamApplicants] = useState([]);
+  const [soloApplicants, setSoloApplicants] = useState([]);
+  const [loadingApplicants, setLoadingApplicants] = useState(false);
+  const [selectedApplicants, setSelectedApplicants] = useState([]);
+  const [emailTemplate, setEmailTemplate] = useState({ subject: "", html: "" });
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(null);
+  const [sendingBulkEmail, setSendingBulkEmail] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [applicantToDelete, setApplicantToDelete] = useState(null);
+  const [deletingApplicant, setDeletingApplicant] = useState(false);
+  const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
+  const [selectedApplicantDetails, setSelectedApplicantDetails] =
+    useState(null);
 
+  const fetchApplicants = async (eventId) => {
+    if (!eventId) return;
+
+    setLoadingApplicants(true);
+    setSelectedApplicants([]);
+
+    try {
+      const token = localStorage.getItem("adminToken");
+
+      // Fetch team applicants
+      const teamResponse = await fetch(
+        `https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/team/${eventId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const teamData = await teamResponse.json();
+
+      // Fetch solo applicants
+      const soloResponse = await fetch(
+        `https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/solo/${eventId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const soloData = await soloResponse.json();
+
+      if (teamData.status === "success") {
+        setTeamApplicants(teamData.data || []);
+      } else {
+        toast.error("Failed to fetch team applicants");
+      }
+
+      if (soloData.status === "success") {
+        setSoloApplicants(soloData.data || []);
+      } else {
+        toast.error("Failed to fetch solo applicants");
+      }
+    } catch (error) {
+      toast.error("Something went wrong while fetching applicants");
+    } finally {
+      setLoadingApplicants(false);
+    }
+  };
+
+  // Function to send email to a single applicant
+  const handleSendEmail = async (applicantId, type) => {
+    setSendingEmail(applicantId);
+
+    try {
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch(
+        `https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/${type}/applicant/mail/${applicantId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        toast.success("Email sent successfully");
+        // Update the applicant's status in the state
+        if (type === "solo") {
+          setSoloApplicants((prev) =>
+            prev.map((app) =>
+              app._id === applicantId ? { ...app, isMailSent: true } : app,
+            ),
+          );
+        } else {
+          setTeamApplicants((prev) =>
+            prev.map((app) =>
+              app._id === applicantId ? { ...app, isMailSent: true } : app,
+            ),
+          );
+        }
+      } else {
+        toast.error(data.message || "Failed to send email");
+      }
+    } catch (error) {
+      toast.error("Something went wrong while sending email");
+    } finally {
+      setSendingEmail(null);
+    }
+  };
+
+  // Function to send emails to multiple applicants
+  const handleSendBulkEmail = async () => {
+    if (!emailTemplate.subject || !emailTemplate.html) {
+      toast.error("Please provide both subject and HTML content");
+      return;
+    }
+
+    setSendingBulkEmail(true);
+
+    try {
+      const token = localStorage.getItem("adminToken");
+
+      // First set the email template
+      const templateResponse = await fetch(
+        "https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/applicant/mail/template",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            subject: emailTemplate.subject,
+            html: emailTemplate.html.replace(/\n/g, " "),
+          }),
+        },
+      );
+
+      const templateData = await templateResponse.json();
+
+      if (templateData.status !== "success") {
+        throw new Error(templateData.message || "Failed to set email template");
+      }
+
+      // Get solo and team applicants
+      const soloApplicantIds = selectedApplicants.filter((id) =>
+        soloApplicants.some((app) => app._id === id),
+      );
+
+      const teamApplicantIds = selectedApplicants.filter((id) =>
+        teamApplicants.some((app) => app._id === id),
+      );
+
+      const emailPromises = [];
+
+      // Send emails to solo applicants
+      for (const id of soloApplicantIds) {
+        const promise = fetch(
+          `https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/solo/applicant/mail/${id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        emailPromises.push(promise);
+      }
+
+      // Send emails to team applicants
+      for (const id of teamApplicantIds) {
+        const promise = fetch(
+          `https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/team/applicant/mail/${id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        emailPromises.push(promise);
+      }
+
+      // Wait for all emails to be sent
+      await Promise.all(emailPromises);
+
+      toast.success("Emails sent successfully");
+
+      // Update applicant status in state
+      setSoloApplicants((prev) =>
+        prev.map((app) =>
+          selectedApplicants.includes(app._id)
+            ? { ...app, isMailSent: true }
+            : app,
+        ),
+      );
+
+      setTeamApplicants((prev) =>
+        prev.map((app) =>
+          selectedApplicants.includes(app._id)
+            ? { ...app, isMailSent: true }
+            : app,
+        ),
+      );
+
+      // Reset and close dialog
+      setSelectedApplicants([]);
+      setEmailTemplate({ subject: "", html: "" });
+      setEmailDialogOpen(false);
+    } catch (error) {
+      toast.error(error.message || "Something went wrong while sending emails");
+    } finally {
+      setSendingBulkEmail(false);
+    }
+  };
+
+  // Function to delete an applicant
+  const handleDeleteApplicant = async () => {
+    if (!applicantToDelete) return;
+
+    setDeletingApplicant(true);
+
+    try {
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch(
+        `https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/${applicantToDelete.type}/applicant/${applicantToDelete.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        toast.success("Applicant deleted successfully");
+
+        // Remove the deleted applicant from the state
+        if (applicantToDelete.type === "solo") {
+          setSoloApplicants((prev) =>
+            prev.filter((app) => app._id !== applicantToDelete.id),
+          );
+        } else {
+          setTeamApplicants((prev) =>
+            prev.filter((app) => app._id !== applicantToDelete.id),
+          );
+        }
+
+        // Also remove from selected applicants if present
+        setSelectedApplicants((prev) =>
+          prev.filter((id) => id !== applicantToDelete.id),
+        );
+      } else {
+        toast.error(data.message || "Failed to delete applicant");
+      }
+    } catch (error) {
+      toast.error("Something went wrong while deleting applicant");
+    } finally {
+      setDeletingApplicant(false);
+      setDeleteDialogOpen(false);
+      setApplicantToDelete(null);
+    }
+  };
+
+  // Update the useEffect to handle token check and initial event fetch
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
     if (!token) {
@@ -43,6 +326,12 @@ export const AdminPanel = () => {
 
     fetchEvents();
   }, [router]);
+
+  // Update the selection handler for events to fetch applicants
+  const handleEventSelection = (eventId) => {
+    setSelectedEventId(eventId);
+    fetchApplicants(eventId);
+  };
 
   const fetchEvents = async () => {
     setIsLoading(true);
@@ -70,7 +359,6 @@ export const AdminPanel = () => {
         toast.error(data.message || "Failed to fetch events");
       }
     } catch (error) {
-      console.error("Error fetching events:", error);
       toast.error("Something went wrong while fetching events");
     } finally {
       setIsLoading(false);
@@ -212,19 +500,6 @@ export const AdminPanel = () => {
     setActiveTab("events");
   };
 
-  const handleSendEmail = (applicantId) => {
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setApplicants(
-        applicants.map((app) =>
-          app.id === applicantId ? { ...app, emailSent: true } : app,
-        ),
-      );
-      setIsLoading(false);
-    }, 1000);
-  };
-
   const formatDate = (dateString) => {
     const options = {
       year: "numeric",
@@ -288,6 +563,7 @@ export const AdminPanel = () => {
           <TabsTrigger
             value="applicants"
             className="data-[state=active]:bg-blue-600"
+            onClick={() => fetchApplicants(selectedEventId)}
           >
             <div className="flex items-center gap-2">
               <svg
@@ -643,146 +919,787 @@ export const AdminPanel = () => {
               </div>
               <div className="flex flex-col md:flex-row gap-3">
                 <select
-                  className="bg-neutral-800 border border-neutral-700 rounded-md px-3 py-2 text-sm"
+                  className="bg-neutral-800 border border-neutral-700 rounded-md px-3 text-sm"
                   value={selectedEventId}
-                  onChange={(e) => setSelectedEventId(e.target.value)}
+                  onChange={(e) => handleEventSelection(e.target.value)}
                 >
+                  <option value="">Select an event</option>
                   {events.map((event) => (
-                    <option key={event.id} value={event.id}>
+                    <option key={event._id} value={event._id}>
                       {event.title}
                     </option>
                   ))}
                 </select>
-                <Input
-                  placeholder="Search applicants..."
-                  className="md:w-64"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
               </div>
             </div>
 
-            {filteredApplicants.length === 0 ? (
-              <div className="text-center py-12 border border-dashed border-neutral-800 rounded-lg">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-12 w-12 mx-auto text-neutral-700 mb-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                  />
-                </svg>
-                <p className="text-neutral-400">
-                  No registrations found for this event.
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b border-neutral-800">
-                      <th className="text-left py-3 px-4 font-medium text-neutral-300">
-                        Team Name
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-neutral-300">
-                        Team Leader
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-neutral-300">
-                        Project Topic
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-neutral-300">
-                        Members
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-neutral-300">
-                        Registered
-                      </th>
-                      <th className="text-center py-3 px-4 font-medium text-neutral-300">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredApplicants
-                      .filter(
-                        (app) =>
-                          app.teamName
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          app.teamLeaderName
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()) ||
-                          app.projectTopic
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()),
-                      )
-                      .map((applicant) => (
-                        <tr
-                          key={applicant.id}
-                          className="border-b border-neutral-800 hover:bg-neutral-800/50 transition-colors"
-                        >
-                          <td className="py-3 px-4">{applicant.teamName}</td>
-                          <td className="py-3 px-4">
-                            <div>{applicant.teamLeaderName}</div>
-                            <div className="text-sm text-neutral-400">
-                              {applicant.teamLeaderEmail}
-                            </div>
-                            <div className="text-sm text-neutral-400">
-                              {applicant.teamLeaderMobile}
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 max-w-xs">
-                            <div
-                              className="truncate"
-                              title={applicant.projectTopic}
-                            >
-                              {applicant.projectTopic}
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">{applicant.members}</td>
-                          <td className="py-3 px-4">
-                            <div>{formatDate(applicant.submittedAt)}</div>
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <div className="flex justify-center gap-2">
-                              <Button
-                                size="sm"
-                                className="bg-neutral-800 hover:bg-neutral-700"
-                                onClick={() => {
-                                  // View full details logic here
-                                  console.log("View details for", applicant.id);
-                                }}
-                              >
-                                View
-                              </Button>
-                              <Button
-                                size="sm"
-                                className={
-                                  applicant.emailSent
-                                    ? "bg-green-900/30 text-green-400 cursor-default"
-                                    : "bg-blue-900/30 hover:bg-blue-900/50 text-blue-400"
-                                }
-                                disabled={applicant.emailSent || isLoading}
-                                onClick={() => handleSendEmail(applicant.id)}
-                              >
-                                {applicant.emailSent
-                                  ? "Email Sent"
-                                  : "Send Email"}
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
+            {selectedEventId && (
+              <Tabs defaultValue="team" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4 bg-neutral-800">
+                  <TabsTrigger
+                    value="team"
+                    className="data-[state=active]:bg-blue-600"
+                  >
+                    Team Applicants
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="solo"
+                    className="data-[state=active]:bg-blue-600"
+                  >
+                    Solo Applicants
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="team">
+                  {loadingApplicants ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                    </div>
+                  ) : teamApplicants.length === 0 ? (
+                    <div className="text-center py-12 border border-dashed border-neutral-800 rounded-lg">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-12 w-12 mx-auto text-neutral-700 mb-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1}
+                          d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                        />
+                      </svg>
+                      <p className="text-neutral-400">
+                        No team registrations found for this event.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="mb-4 flex justify-between items-center">
+                        <span className="text-sm text-neutral-400">
+                          {teamApplicants.length} teams registered
+                        </span>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              const selected = teamApplicants.filter((app) =>
+                                selectedApplicants.includes(app._id),
+                              );
+                              if (selected.length === 0) {
+                                toast.error("No applicants selected");
+                                return;
+                              }
+                              setEmailDialogOpen(true);
+                            }}
+                            disabled={selectedApplicants.length === 0}
+                            className="flex items-center gap-1 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 border-blue-800"
+                          >
+                            <Mail className="w-4 h-4" />
+                            Email Selected
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table className="w-full border-collapse">
+                          <thead>
+                            <tr className="border-b border-neutral-800">
+                              <th className="text-left py-3 px-4 font-medium text-neutral-300 w-10">
+                                <Checkbox
+                                  checked={
+                                    teamApplicants.length > 0 &&
+                                    selectedApplicants.length ===
+                                      teamApplicants.length
+                                  }
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
+                                      setSelectedApplicants(
+                                        teamApplicants.map((app) => app._id),
+                                      );
+                                    } else {
+                                      setSelectedApplicants([]);
+                                    }
+                                  }}
+                                />
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-neutral-300">
+                                Team Name
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-neutral-300">
+                                Team Leader
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-neutral-300">
+                                Members
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-neutral-300">
+                                College
+                              </th>
+                              <th className="text-center py-3 px-4 font-medium text-neutral-300">
+                                Status
+                              </th>
+                              <th className="text-center py-3 px-4 font-medium text-neutral-300">
+                                Actions
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {teamApplicants
+                              .filter(
+                                (app) =>
+                                  app.teamName
+                                    ?.toLowerCase()
+                                    .includes(searchTerm.toLowerCase()) ||
+                                  app.teamLeader?.name
+                                    ?.toLowerCase()
+                                    .includes(searchTerm.toLowerCase()) ||
+                                  app.college
+                                    ?.toLowerCase()
+                                    .includes(searchTerm.toLowerCase()),
+                              )
+                              .map((applicant) => (
+                                <tr
+                                  key={applicant._id}
+                                  className="border-b border-neutral-800 hover:bg-neutral-800/50 transition-colors"
+                                >
+                                  <td className="py-3 px-4">
+                                    <Checkbox
+                                      checked={selectedApplicants.includes(
+                                        applicant._id,
+                                      )}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          setSelectedApplicants([
+                                            ...selectedApplicants,
+                                            applicant._id,
+                                          ]);
+                                        } else {
+                                          setSelectedApplicants(
+                                            selectedApplicants.filter(
+                                              (id) => id !== applicant._id,
+                                            ),
+                                          );
+                                        }
+                                      }}
+                                    />
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {applicant.teamName}
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    <div>{applicant.teamLeader?.name}</div>
+                                    <div className="text-sm text-neutral-400">
+                                      {applicant.teamLeader?.email}
+                                    </div>
+                                    <div className="text-sm text-neutral-400">
+                                      {applicant.teamLeader?.mobileNumber}
+                                    </div>
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {applicant.members?.length || 1}
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {applicant.college}
+                                  </td>
+                                  <td className="py-3 px-4 text-center">
+                                    {applicant.isMailSent ? (
+                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                        <Check className="w-3 h-3 mr-1" />
+                                        Email Sent
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                                        Pending
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4 text-center">
+                                    <div className="flex justify-center gap-2">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 w-8 p-0 bg-neutral-800 hover:bg-neutral-700"
+                                        onClick={() => {
+                                          setSelectedApplicantDetails(
+                                            applicant,
+                                          );
+                                          setViewDetailsOpen(true);
+                                        }}
+                                      >
+                                        <FileEdit className="h-4 w-4" />
+                                        <span className="sr-only">
+                                          View details
+                                        </span>
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 w-8 p-0 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 border-blue-800"
+                                        disabled={
+                                          applicant.isMailSent || sendingEmail
+                                        }
+                                        onClick={() =>
+                                          handleSendEmail(applicant._id, "team")
+                                        }
+                                      >
+                                        {sendingEmail === applicant._id ? (
+                                          <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                          <Mail className="h-4 w-4" />
+                                        )}
+                                        <span className="sr-only">
+                                          Send email
+                                        </span>
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 w-8 p-0 bg-red-900/30 hover:bg-red-900/50 text-red-400 border-red-800"
+                                        onClick={() => {
+                                          setApplicantToDelete({
+                                            id: applicant._id,
+                                            type: "team",
+                                          });
+                                          setDeleteDialogOpen(true);
+                                        }}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                        <span className="sr-only">Delete</span>
+                                      </Button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="solo">
+                  {loadingApplicants ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                    </div>
+                  ) : soloApplicants.length === 0 ? (
+                    <div className="text-center py-12 border border-dashed border-neutral-800 rounded-lg">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-12 w-12 mx-auto text-neutral-700 mb-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1}
+                          d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                        />
+                      </svg>
+                      <p className="text-neutral-400">
+                        No solo registrations found for this event.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="mb-4 flex justify-between items-center">
+                        <span className="text-sm text-neutral-400">
+                          {soloApplicants.length} participants registered
+                        </span>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              const selected = soloApplicants.filter((app) =>
+                                selectedApplicants.includes(app._id),
+                              );
+                              if (selected.length === 0) {
+                                toast.error("No applicants selected");
+                                return;
+                              }
+                              setEmailDialogOpen(true);
+                            }}
+                            disabled={selectedApplicants.length === 0}
+                            className="flex items-center gap-1 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 border-blue-800"
+                          >
+                            <Mail className="w-4 h-4" />
+                            Email Selected
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table className="w-full border-collapse">
+                          <thead>
+                            <tr className="border-b border-neutral-800">
+                              <th className="text-left py-3 px-4 font-medium text-neutral-300 w-10">
+                                <Checkbox
+                                  checked={
+                                    soloApplicants.length > 0 &&
+                                    selectedApplicants.length ===
+                                      soloApplicants.length
+                                  }
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
+                                      setSelectedApplicants(
+                                        soloApplicants.map((app) => app._id),
+                                      );
+                                    } else {
+                                      setSelectedApplicants([]);
+                                    }
+                                  }}
+                                />
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-neutral-300">
+                                Name
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-neutral-300">
+                                Email
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-neutral-300">
+                                Mobile
+                              </th>
+                              <th className="text-left py-3 px-4 font-medium text-neutral-300">
+                                College
+                              </th>
+                              <th className="text-center py-3 px-4 font-medium text-neutral-300">
+                                Status
+                              </th>
+                              <th className="text-center py-3 px-4 font-medium text-neutral-300">
+                                Actions
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {soloApplicants
+                              .filter(
+                                (app) =>
+                                  app.name
+                                    ?.toLowerCase()
+                                    .includes(searchTerm.toLowerCase()) ||
+                                  app.email
+                                    ?.toLowerCase()
+                                    .includes(searchTerm.toLowerCase()) ||
+                                  app.college
+                                    ?.toLowerCase()
+                                    .includes(searchTerm.toLowerCase()),
+                              )
+                              .map((applicant) => (
+                                <tr
+                                  key={applicant._id}
+                                  className="border-b border-neutral-800 hover:bg-neutral-800/50 transition-colors"
+                                >
+                                  <td className="py-3 px-4">
+                                    <Checkbox
+                                      checked={selectedApplicants.includes(
+                                        applicant._id,
+                                      )}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          setSelectedApplicants([
+                                            ...selectedApplicants,
+                                            applicant._id,
+                                          ]);
+                                        } else {
+                                          setSelectedApplicants(
+                                            selectedApplicants.filter(
+                                              (id) => id !== applicant._id,
+                                            ),
+                                          );
+                                        }
+                                      }}
+                                    />
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {applicant.name}
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {applicant.email}
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {applicant.mobileNumber}
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {applicant.college}
+                                  </td>
+                                  <td className="py-3 px-4 text-center">
+                                    {applicant.isMailSent ? (
+                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                        <Check className="w-3 h-3 mr-1" />
+                                        Email Sent
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                                        Pending
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4 text-center">
+                                    <div className="flex justify-center gap-2">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 w-8 p-0 bg-neutral-800 hover:bg-neutral-700"
+                                        onClick={() => {
+                                          setSelectedApplicantDetails(
+                                            applicant,
+                                          );
+                                          setViewDetailsOpen(true);
+                                        }}
+                                      >
+                                        <FileEdit className="h-4 w-4" />
+                                        <span className="sr-only">
+                                          View details
+                                        </span>
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 w-8 p-0 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 border-blue-800"
+                                        disabled={
+                                          applicant.isMailSent || sendingEmail
+                                        }
+                                        onClick={() =>
+                                          handleSendEmail(applicant._id, "solo")
+                                        }
+                                      >
+                                        {sendingEmail === applicant._id ? (
+                                          <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                          <Mail className="h-4 w-4" />
+                                        )}
+                                        <span className="sr-only">
+                                          Send email
+                                        </span>
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 w-8 p-0 bg-red-900/30 hover:bg-red-900/50 text-red-400 border-red-800"
+                                        onClick={() => {
+                                          setApplicantToDelete({
+                                            id: applicant._id,
+                                            type: "solo",
+                                          });
+                                          setDeleteDialogOpen(true);
+                                        }}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                        <span className="sr-only">Delete</span>
+                                      </Button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
+                </TabsContent>
+              </Tabs>
             )}
           </div>
+          {/* Email Template Dialog */}
+          <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+            <DialogContent className="bg-neutral-900 text-white border-neutral-800 max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Send Email to Selected Applicants</DialogTitle>
+                <DialogDescription className="text-neutral-400">
+                  Create an email template to send to all selected applicants
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4 py-4">
+                <LabelInputContainer>
+                  <Label htmlFor="emailSubject">Email Subject*</Label>
+                  <Input
+                    id="emailSubject"
+                    placeholder="Subject line for your email"
+                    value={emailTemplate.subject}
+                    onChange={(e) =>
+                      setEmailTemplate({
+                        ...emailTemplate,
+                        subject: e.target.value,
+                      })
+                    }
+                    className="bg-neutral-800"
+                  />
+                </LabelInputContainer>
+
+                <LabelInputContainer>
+                  <Label htmlFor="emailHTML">Email Content (HTML)*</Label>
+                  <Textarea
+                    id="emailHTML"
+                    placeholder="Enter HTML content for your email"
+                    rows={10}
+                    value={emailTemplate.html}
+                    onChange={(e) =>
+                      setEmailTemplate({
+                        ...emailTemplate,
+                        html: e.target.value,
+                      })
+                    }
+                    className="bg-neutral-800 font-mono text-sm"
+                  />
+                </LabelInputContainer>
+
+                <div className="bg-neutral-800 p-3 rounded-md text-sm text-neutral-400">
+                  <p>You can use HTML tags to format your email. Example:</p>
+                  <code className="text-blue-400 block mt-2 bg-neutral-950 p-2 rounded">
+                    &lt;h1&gt;Congratulations!&lt;/h1&gt;
+                    <br />
+                    &lt;p&gt;You have been selected for &lt;b&gt;Event
+                    Name&lt;/b&gt;&lt;/p&gt;
+                  </code>
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setEmailDialogOpen(false)}
+                  className="bg-neutral-800"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSendBulkEmail}
+                  disabled={
+                    !emailTemplate.subject ||
+                    !emailTemplate.html ||
+                    sendingBulkEmail
+                  }
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {sendingBulkEmail ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Sending...
+                    </span>
+                  ) : (
+                    "Send Emails"
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Delete Confirmation Dialog */}
+          <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <DialogContent className="bg-neutral-900 text-white border-neutral-800">
+              <DialogHeader>
+                <DialogTitle>Confirm Deletion</DialogTitle>
+              </DialogHeader>
+              <p className="py-4">
+                Are you sure you want to delete this applicant? This action
+                cannot be undone.
+              </p>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setDeleteDialogOpen(false)}
+                  className="bg-neutral-800"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDeleteApplicant}
+                  disabled={deletingApplicant}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {deletingApplicant ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Deleting...
+                    </span>
+                  ) : (
+                    "Delete"
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* View Applicant Details Dialog */}
+          {selectedApplicantDetails && (
+            <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
+              <DialogContent className="bg-neutral-900 text-white border-neutral-800 max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Applicant Details</DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                  {/* Solo applicant details */}
+                  {!selectedApplicantDetails.teamName && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <LabelInputContainer>
+                          <Label>Name</Label>
+                          <div className="bg-neutral-800 rounded-md p-2">
+                            {selectedApplicantDetails.name}
+                          </div>
+                        </LabelInputContainer>
+                        <LabelInputContainer>
+                          <Label>Email</Label>
+                          <div className="bg-neutral-800 rounded-md p-2">
+                            {selectedApplicantDetails.email}
+                          </div>
+                        </LabelInputContainer>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <LabelInputContainer>
+                          <Label>Mobile Number</Label>
+                          <div className="bg-neutral-800 rounded-md p-2">
+                            {selectedApplicantDetails.mobileNumber}
+                          </div>
+                        </LabelInputContainer>
+                        <LabelInputContainer>
+                          <Label>College</Label>
+                          <div className="bg-neutral-800 rounded-md p-2">
+                            {selectedApplicantDetails.college}
+                          </div>
+                        </LabelInputContainer>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <LabelInputContainer>
+                          <Label>Department</Label>
+                          <div className="bg-neutral-800 rounded-md p-2">
+                            {selectedApplicantDetails.department}
+                          </div>
+                        </LabelInputContainer>
+                        <LabelInputContainer>
+                          <Label>Year</Label>
+                          <div className="bg-neutral-800 rounded-md p-2">
+                            {selectedApplicantDetails.year}
+                          </div>
+                        </LabelInputContainer>
+                      </div>
+                      <LabelInputContainer>
+                        <Label>Registration Date</Label>
+                        <div className="bg-neutral-800 rounded-md p-2">
+                          {formatDate(selectedApplicantDetails.createdAt)}
+                        </div>
+                      </LabelInputContainer>
+                    </div>
+                  )}
+
+                  {/* Team applicant details */}
+                  {selectedApplicantDetails.teamName && (
+                    <div className="space-y-4">
+                      <LabelInputContainer>
+                        <Label>Team Name</Label>
+                        <div className="bg-neutral-800 rounded-md p-2">
+                          {selectedApplicantDetails.teamName}
+                        </div>
+                      </LabelInputContainer>
+
+                      <div className="space-y-2">
+                        <Label>Team Leader</Label>
+                        <div className="bg-neutral-800 rounded-md p-4 space-y-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <LabelInputContainer>
+                              <Label className="text-sm text-neutral-400">
+                                Name
+                              </Label>
+                              <div className="bg-neutral-900 rounded-md p-2">
+                                {selectedApplicantDetails.teamLeader?.name}
+                              </div>
+                            </LabelInputContainer>
+                            <LabelInputContainer>
+                              <Label className="text-sm text-neutral-400">
+                                Email
+                              </Label>
+                              <div className="bg-neutral-900 rounded-md p-2">
+                                {selectedApplicantDetails.teamLeader?.email}
+                              </div>
+                            </LabelInputContainer>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <LabelInputContainer>
+                              <Label className="text-sm text-neutral-400">
+                                Mobile
+                              </Label>
+                              <div className="bg-neutral-900 rounded-md p-2">
+                                {
+                                  selectedApplicantDetails.teamLeader
+                                    ?.mobileNumber
+                                }
+                              </div>
+                            </LabelInputContainer>
+                            <LabelInputContainer>
+                              <Label className="text-sm text-neutral-400">
+                                College
+                              </Label>
+                              <div className="bg-neutral-900 rounded-md p-2">
+                                {selectedApplicantDetails.college}
+                              </div>
+                            </LabelInputContainer>
+                          </div>
+                        </div>
+                      </div>
+
+                      {selectedApplicantDetails.members &&
+                        selectedApplicantDetails.members.length > 0 && (
+                          <div className="space-y-2">
+                            <Label>Team Members</Label>
+                            <div className="space-y-3">
+                              {selectedApplicantDetails.members.map(
+                                (member, index) => (
+                                  <div
+                                    key={index}
+                                    className="bg-neutral-800 rounded-md p-4 space-y-3"
+                                  >
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <LabelInputContainer>
+                                        <Label className="text-sm text-neutral-400">
+                                          Name
+                                        </Label>
+                                        <div className="bg-neutral-900 rounded-md p-2">
+                                          {member.name}
+                                        </div>
+                                      </LabelInputContainer>
+                                      <LabelInputContainer>
+                                        <Label className="text-sm text-neutral-400">
+                                          Email
+                                        </Label>
+                                        <div className="bg-neutral-900 rounded-md p-2">
+                                          {member.email}
+                                        </div>
+                                      </LabelInputContainer>
+                                    </div>
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                      <LabelInputContainer>
+                        <Label>Registration Date</Label>
+                        <div className="bg-neutral-800 rounded-md p-2">
+                          {formatDate(selectedApplicantDetails.createdAt)}
+                        </div>
+                      </LabelInputContainer>
+                    </div>
+                  )}
+                </div>
+                <DialogFooter>
+                  <Button
+                    onClick={() => setViewDetailsOpen(false)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Close
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </TabsContent>
 
         {/* Event Settings Tab */}
