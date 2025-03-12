@@ -681,7 +681,6 @@ export const AdminPanel = () => {
     try {
       const token = localStorage.getItem("adminToken");
 
-      // First set the email template
       const templateResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/admin/news-letter/upload-template`,
         {
@@ -705,7 +704,6 @@ export const AdminPanel = () => {
         );
       }
 
-      // Then send the emails
       const sendResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/admin/news-letter/send-mail`,
         {
