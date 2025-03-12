@@ -4,125 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 
-const galleryData = [
-  {
-    id: 1,
-    title: "Hackathon Highlights",
-    description: "Memorable moments from our previous hackathon events",
-    images: [
-      {
-        id: 1,
-        src: "/90.jpg",
-        alt: "Participants collaborating",
-        title: "Team Collaboration",
-      },
-      {
-        id: 2,
-        src: "/90.jpg",
-        alt: "Winner announcement",
-        title: "Award Ceremony",
-      },
-      {
-        id: 3,
-        src: "/90.jpg",
-        alt: "Coding session",
-        title: "Late Night Coding",
-      },
-      {
-        id: 4,
-        src: "/90.jpg",
-        alt: "Mentoring session",
-        title: "Mentor Guidance",
-      },
-      {
-        id: 5,
-        src: "/90.jpg",
-        alt: "Group photo",
-        title: "Community Gathering",
-      },
-      {
-        id: 6,
-        src: "/90.jpg",
-        alt: "Project demo",
-        title: "Demo Day",
-      },
-      {
-        id: 7,
-        src: "/90.jpg",
-        alt: "Workshop",
-        title: "Technical Workshop",
-      },
-      {
-        id: 9,
-        src: "/90.jpg",
-        alt: "Judges panel",
-        title: "Judging Panel",
-      },
-      {
-        id: 10,
-        src: "/90.jpg",
-        alt: "Judges panel",
-        title: "Judging Panel",
-      },
-      {
-        id: 11,
-        src: "/90.jpg",
-        alt: "Judges panel",
-        title: "Judging Panel",
-      },
-      {
-        id: 12,
-        src: "/90.jpg",
-        alt: "Judges panel",
-        title: "Judging Panel",
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: "Community Events",
-    description: "Activities and gatherings from our developer community",
-    images: [
-      {
-        id: 1,
-        src: "/90.jpg",
-        alt: "Networking event",
-        title: "Tech Meetup",
-      },
-      {
-        id: 2,
-        src: "/90.jpg",
-        alt: "Panel discussion",
-        title: "Industry Experts Panel",
-      },
-      {
-        id: 3,
-        src: "/90.jpg",
-        alt: "Audience",
-        title: "Engaged Audience",
-      },
-      {
-        id: 4,
-        src: "/90.jpg",
-        alt: "Workshop session",
-        title: "Hands-on Workshop",
-      },
-      {
-        id: 5,
-        src: "/90.jpg",
-        alt: "Team building",
-        title: "Team Building Activities",
-      },
-      {
-        id: 6,
-        src: "/90.jpg",
-        alt: "Speaker",
-        title: "Keynote Speaker",
-      },
-    ],
-  },
-];
-
 export const Gallery = () => {
   const [expandedSections, setExpandedSections] = useState({});
   const [lightbox, setLightbox] = useState({
@@ -133,6 +14,48 @@ export const Gallery = () => {
     images: [],
     sectionId: null,
   });
+  const [galleryData, setGalleryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchGalleryData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/images/events/all`,
+        );
+        const result = await response.json();
+
+        if (result.status === "success") {
+          const formattedData = result.data
+            .filter((event) => event.images && event.images.length > 0)
+            .map((event) => ({
+              id: event._id,
+              title: event.title,
+              description: event.description,
+              images: event.images.map((imgUrl, index) => ({
+                id: index + 1,
+                src: imgUrl,
+                alt: `${event.title} image ${index + 1}`,
+                title: `${event.title} - Image ${index + 1}`,
+              })),
+            }));
+
+          setGalleryData(formattedData);
+        } else {
+          setError("Failed to fetch gallery data");
+        }
+      } catch (err) {
+        setError("An error occurred while fetching gallery data");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGalleryData();
+  }, []);
 
   const toggleSection = (sectionId) => {
     setExpandedSections((prev) => ({
@@ -250,7 +173,28 @@ export const Gallery = () => {
           </div>
         </div>
       )}
+      {loading && (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+        </div>
+      )}
+      {error && (
+        <div className="text-center py-20">
+          <p className="text-red-400">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-md"
+          >
+            Try Again
+          </button>
+        </div>
+      )}
 
+      {!loading && !error && galleryData.length === 0 && (
+        <div className="text-center py-20">
+          <p className="text-purple-200/60">No gallery images available yet.</p>
+        </div>
+      )}
       {galleryData.map((section) => (
         <div key={section.id} className="mb-16">
           <div className="text-center mb-10">
@@ -310,10 +254,10 @@ export const Gallery = () => {
                         className="relative w-full overflow-hidden h-[345px] rounded-lg"
                         style={{ paddingBottom: aspectRatio }}
                       >
-                        <Image
+                        <img
                           src={image.src}
                           alt={image.alt}
-                          fill
+                          fill="true"
                           sizes="(max-width: 500px) 50vw, (max-width: 600px) 25vw, 22vw"
                           className="absolute inset-0 object-cover transition-transform duration-500 hover:scale-110"
                         />
