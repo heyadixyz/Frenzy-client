@@ -67,7 +67,7 @@ export const AdminPanel = () => {
 
       // Fetch team applicants
       const teamResponse = await fetch(
-        `https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/team/${eventId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/event/participants/team/${eventId}`,
         {
           method: "GET",
           headers: {
@@ -81,7 +81,7 @@ export const AdminPanel = () => {
 
       // Fetch solo applicants
       const soloResponse = await fetch(
-        `https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/solo/${eventId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/event/participants/solo/${eventId}`,
         {
           method: "GET",
           headers: {
@@ -118,7 +118,7 @@ export const AdminPanel = () => {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await fetch(
-        `https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/${type}/applicant/mail/${applicantId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/event/participants/${type}/applicant/mail/${applicantId}`,
         {
           method: "POST",
           headers: {
@@ -170,7 +170,7 @@ export const AdminPanel = () => {
 
       // First set the email template
       const templateResponse = await fetch(
-        "https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/applicant/mail/template",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/event/participants/applicant/mail/template`,
         {
           method: "POST",
           headers: {
@@ -204,7 +204,7 @@ export const AdminPanel = () => {
       // Send emails to solo applicants
       for (const id of soloApplicantIds) {
         const promise = fetch(
-          `https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/solo/applicant/mail/${id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/event/participants/solo/applicant/mail/${id}`,
           {
             method: "POST",
             headers: {
@@ -219,7 +219,7 @@ export const AdminPanel = () => {
       // Send emails to team applicants
       for (const id of teamApplicantIds) {
         const promise = fetch(
-          `https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/team/applicant/mail/${id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/event/participants/team/applicant/mail/${id}`,
           {
             method: "POST",
             headers: {
@@ -273,7 +273,7 @@ export const AdminPanel = () => {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await fetch(
-        `https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/participants/${applicantToDelete.type}/applicant/${applicantToDelete.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/event/participants/${applicantToDelete.type}/applicant/${applicantToDelete.id}`,
         {
           method: "DELETE",
           headers: {
@@ -338,7 +338,7 @@ export const AdminPanel = () => {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await fetch(
-        "https://pssvd9k9-81.inc1.devtunnels.ms/api/admin/event/all",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/event/all`,
         {
           method: "GET",
           headers: {
