@@ -65,6 +65,18 @@ export const AdminPanel = () => {
     useState(null);
   const [eventImages, setEventImages] = useState([]);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [newsletterEmails, setNewsletterEmails] = useState([]);
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [emailToRemove, setEmailToRemove] = useState(null);
+  const [removeEmailDialogOpen, setRemoveEmailDialogOpen] = useState(false);
+  const [removingEmail, setRemovingEmail] = useState(false);
+  const [newsletterTemplate, setNewsletterTemplate] = useState({
+    subject: "",
+    html: "",
+  });
+  const [sendingNewsletter, setSendingNewsletter] = useState(false);
+  const [newsletterPage, setNewsletterPage] = useState(1);
+  const [newsletterTotalPages, setNewsletterTotalPages] = useState(1);
 
   const handleImageUpload = async (eventId) => {
     if (eventImages.length === 0) {
@@ -404,19 +416,6 @@ export const AdminPanel = () => {
     }
   };
 
-  // Update the useEffect to handle token check and initial event fetch
-  useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) {
-      toast.error("You must be logged in to access this page");
-      router.push("/admin-login");
-      return;
-    }
-
-    fetchEvents();
-  }, [router]);
-
-  // Update the selection handler for events to fetch applicants
   const handleEventSelection = (eventId) => {
     setSelectedEventId(eventId);
     fetchApplicants(eventId);
@@ -453,6 +452,10 @@ export const AdminPanel = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
 
   const filteredApplicants = applicants.filter(
     (app) => app.eventId === selectedEventId,
@@ -600,8 +603,144 @@ export const AdminPanel = () => {
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
+  const fetchNewsletterEmails = async (page = 1) => {
+    setNewsletterLoading(true);
+    try {
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/news-letter/all?page=${page}&limit=50`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        setNewsletterEmails(data.data || []);
+        setNewsletterTotalPages(Math.ceil(data.total / 50) || 1);
+      } else {
+        toast.error(data.message || "Failed to fetch newsletter subscribers");
+      }
+    } catch (error) {
+      toast.error("Something went wrong while fetching newsletter subscribers");
+    } finally {
+      setNewsletterLoading(false);
+    }
+  };
+
+  const handleRemoveEmail = async () => {
+    if (!emailToRemove) return;
+
+    setRemovingEmail(true);
+    try {
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/news-letter/remove`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: emailToRemove,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        toast.success("Email removed successfully");
+        setNewsletterEmails((prev) =>
+          prev.filter((item) => item.email !== emailToRemove),
+        );
+      } else {
+        toast.error(data.message || "Failed to remove email");
+      }
+    } catch (error) {
+      toast.error("Something went wrong while removing email");
+    } finally {
+      setRemovingEmail(false);
+      setRemoveEmailDialogOpen(false);
+      setEmailToRemove(null);
+    }
+  };
+  const handleSendNewsletter = async () => {
+    if (!newsletterTemplate.subject || !newsletterTemplate.html) {
+      toast.error("Please provide both subject and content for the newsletter");
+      return;
+    }
+
+    setSendingNewsletter(true);
+    try {
+      const token = localStorage.getItem("adminToken");
+
+      // First set the email template
+      const templateResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/news-letter/upload-template`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            subject: newsletterTemplate.subject,
+            html: newsletterTemplate.html.replace(/\n/g, " "),
+          }),
+        },
+      );
+
+      const templateData = await templateResponse.json();
+
+      if (templateData.status !== "success") {
+        throw new Error(
+          templateData.message || "Failed to set newsletter template",
+        );
+      }
+
+      // Then send the emails
+      const sendResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/news-letter/send-mail`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const sendData = await sendResponse.json();
+
+      if (sendData.status === "success") {
+        toast.success("Newsletter sent successfully");
+        setNewsletterTemplate({ subject: "", html: "" });
+      } else {
+        toast.error(sendData.message || "Failed to send newsletter");
+      }
+    } catch (error) {
+      toast.error(
+        error.message || "Something went wrong while sending newsletter",
+      );
+    } finally {
+      setSendingNewsletter(false);
+    }
+  };
+  useEffect(() => {
+    if (activeTab === "newsletter") {
+      console.log("fetching newsletters");
+      fetchNewsletterEmails();
+    }
+  }, [activeTab]);
   return (
-    <div className="container w-full mx-auto p-6 text-neutral-200 min-h-screen">
+    <div className="container md:w-7xl w-xl mx-auto p-6 text-neutral-200 min-h-screen">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 inline-block text-transparent bg-clip-text">
@@ -675,8 +814,9 @@ export const AdminPanel = () => {
             </div>
           </TabsTrigger>
           <TabsTrigger
-            value="timer"
+            value="newsletter"
             className="data-[state=active]:bg-blue-600"
+            onClick={() => fetchNewsletterEmails()}
           >
             <div className="flex items-center gap-2">
               <svg
@@ -690,10 +830,10 @@ export const AdminPanel = () => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
               </svg>
-              Event Settings
+              Newsletter
             </div>
           </TabsTrigger>
         </TabsList>
@@ -702,7 +842,7 @@ export const AdminPanel = () => {
         <TabsContent value="events" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
             <div className="col-span-1 md:col-span-2">
-              <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
+              <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800">
                 <h3 className="font-medium text-xl mb-4">
                   {editingEvent ? "Edit Event" : "Add New Event"}
                 </h3>
@@ -751,8 +891,22 @@ export const AdminPanel = () => {
                       className="bg-zinc-800 text-white rounded-md px-3 py-2 w-full"
                       required
                     >
-                      <option value="team">Team</option>
-                      <option value="solo">Solo</option>
+                      <option
+                        value="team"
+                        onClick={() => {
+                          fetchApplicants(selectedEventId);
+                        }}
+                      >
+                        Team
+                      </option>
+                      <option
+                        value="solo"
+                        onClick={() => {
+                          fetchApplicants(selectedEventId);
+                        }}
+                      >
+                        Solo
+                      </option>
                     </select>
                   </LabelInputContainer>
 
@@ -894,7 +1048,7 @@ export const AdminPanel = () => {
 
                 <div className="space-y-4">
                   <select
-                    className="bg-neutral-800 border border-neutral-700 rounded-md px-3 py-2 w-full"
+                    className="bg-neutral-900/60 border border-neutral-700 rounded-md px-3 py-2 w-full"
                     value={selectedEventId}
                     onChange={(e) => setSelectedEventId(e.target.value)}
                   >
@@ -965,7 +1119,7 @@ export const AdminPanel = () => {
             </div>
 
             <div className="col-span-1 md:col-span-3">
-              <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
+              <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-medium text-xl">Events List</h3>
                   <Input
@@ -1042,6 +1196,16 @@ export const AdminPanel = () => {
                               <p className="text-neutral-400 text-sm mb-3 line-clamp-2">
                                 {event.description}
                               </p>
+                              {event.registrationOpen ? (
+                                <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 mb-2">
+                                  <Check className="w-3 h-3 mr-1" />
+                                  Registration Open
+                                </div>
+                              ) : (
+                                <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-700 text-neutral-300 mb-2">
+                                  Registration Closed
+                                </div>
+                              )}
                               <div className="flex flex-wrap gap-2 mb-4">
                                 <span className="text-xs py-1 px-2 bg-neutral-800 rounded-full text-neutral-300">
                                   {formatDate(event.timerDates.startingDate)}
@@ -1075,7 +1239,7 @@ export const AdminPanel = () => {
 
         {/* Applicants Tab */}
         <TabsContent value="applicants" className="space-y-6">
-          <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
+          <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800">
             <div className="mb-6 flex flex-col md:flex-row justify-between gap-4">
               <div>
                 <h3 className="font-medium text-xl mb-2">
@@ -1871,148 +2035,245 @@ export const AdminPanel = () => {
         </TabsContent>
 
         {/* Event Settings Tab */}
-        <TabsContent value="timer" className="space-y-6">
+        <TabsContent value="newsletter" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
+            <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800">
               <h3 className="font-medium text-xl mb-4">
-                Event Timing Settings
+                Newsletter Subscribers
               </h3>
               <p className="text-neutral-400 text-sm mb-6">
-                Configure countdown timers for your events
+                Manage your newsletter subscribers list
+              </p>
+
+              {newsletterLoading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                </div>
+              ) : newsletterEmails.length === 0 ? (
+                <div className="text-center py-12 border border-dashed border-neutral-800 rounded-lg">
+                  <Mail className="h-12 w-12 mx-auto text-neutral-700 mb-4" />
+                  <p className="text-neutral-400">
+                    No newsletter subscribers found.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-4">
+                    <Input
+                      placeholder="Search emails..."
+                      className="bg-neutral-800 border-neutral-700"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="overflow-hidden rounded-md border border-neutral-800">
+                    <div className="max-h-[400px] overflow-auto">
+                      <table className="w-full">
+                        <thead className="bg-neutral-800">
+                          <tr>
+                            <th className="text-left py-2 px-4 font-medium">
+                              Email
+                            </th>
+                            <th className="text-left py-2 px-4 font-medium">
+                              Date
+                            </th>
+                            <th className="text-right py-2 px-4 font-medium">
+                              Action
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {newsletterEmails
+                            .filter((item) =>
+                              item.email
+                                ?.toLowerCase()
+                                .includes(searchTerm.toLowerCase()),
+                            )
+                            .map((item, index) => (
+                              <tr
+                                key={index}
+                                className="border-t border-neutral-800"
+                              >
+                                <td className="py-2 px-4">{item.email}</td>
+                                <td className="py-2 px-4">
+                                  {formatDate(item.createdAt)}
+                                </td>
+                                <td className="py-2 px-4 text-right">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-red-500 hover:text-red-600 hover:bg-red-900/20"
+                                    onClick={() => {
+                                      setEmailToRemove(item.email);
+                                      setRemoveEmailDialogOpen(true);
+                                    }}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {newsletterTotalPages > 1 && (
+                    <div className="flex justify-center mt-4 gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={newsletterPage === 1}
+                        onClick={() => {
+                          const newPage = Math.max(1, newsletterPage - 1);
+                          setNewsletterPage(newPage);
+                          fetchNewsletterEmails(newPage);
+                        }}
+                        className="bg-neutral-800 border-neutral-700"
+                      >
+                        Previous
+                      </Button>
+                      <div className="flex items-center px-4 text-sm">
+                        Page {newsletterPage} of {newsletterTotalPages}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={newsletterPage === newsletterTotalPages}
+                        onClick={() => {
+                          const newPage = Math.min(
+                            newsletterTotalPages,
+                            newsletterPage + 1,
+                          );
+                          setNewsletterPage(newPage);
+                          fetchNewsletterEmails(newPage);
+                        }}
+                        className="bg-neutral-800 border-neutral-700"
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800">
+              <h3 className="font-medium text-xl mb-4">Send Newsletter</h3>
+              <p className="text-neutral-400 text-sm mb-6">
+                Create and send emails to all your newsletter subscribers
               </p>
 
               <div className="space-y-4">
-                <select
-                  className="w-full bg-neutral-800 border border-neutral-700 rounded-md px-3 py-2"
-                  value={selectedEventId}
-                  onChange={(e) => setSelectedEventId(e.target.value)}
-                >
-                  {events.map((event) => (
-                    <option key={event.id} value={event.id}>
-                      {event.title}
-                    </option>
-                  ))}
-                </select>
-
-                {events.find((e) => e.id === selectedEventId) && (
-                  <>
-                    <div className="grid grid-cols-2 gap-4">
-                      <LabelInputContainer>
-                        <Label>Registration Opens</Label>
-                        <Input
-                          type="datetime-local"
-                          defaultValue={
-                            events.find((e) => e.id === selectedEventId)
-                              ?.startDate
-                          }
-                        />
-                      </LabelInputContainer>
-
-                      <LabelInputContainer>
-                        <Label>Registration Closes</Label>
-                        <Input
-                          type="datetime-local"
-                          defaultValue={
-                            events.find((e) => e.id === selectedEventId)
-                              ?.endDate
-                          }
-                        />
-                      </LabelInputContainer>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <LabelInputContainer>
-                        <Label>Event Starts</Label>
-                        <Input type="datetime-local" />
-                      </LabelInputContainer>
-
-                      <LabelInputContainer>
-                        <Label>Event Ends</Label>
-                        <Input type="datetime-local" />
-                      </LabelInputContainer>
-                    </div>
-
-                    <div className="mt-6">
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                        Update Timer Settings
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
-              <h3 className="font-medium text-xl mb-4">Preview</h3>
-              <p className="text-neutral-400 text-sm mb-6">
-                Here's how your countdown timer will appear to users
-              </p>
-
-              {events.find((e) => e.id === selectedEventId) && (
-                <div className="border border-neutral-800 rounded-lg p-6 bg-neutral-950">
-                  <h4 className="font-medium text-lg mb-6 text-center">
-                    {events.find((e) => e.id === selectedEventId)?.title}
-                  </h4>
-
-                  <div className="grid grid-cols-4 gap-2 mb-6">
-                    <div className="flex flex-col items-center">
-                      <div className="bg-neutral-800 w-full py-3 rounded-md text-center text-2xl font-bold">
-                        10
-                      </div>
-                      <div className="text-xs mt-1 text-neutral-400">Days</div>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="bg-neutral-800 w-full py-3 rounded-md text-center text-2xl font-bold">
-                        08
-                      </div>
-                      <div className="text-xs mt-1 text-neutral-400">Hours</div>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="bg-neutral-800 w-full py-3 rounded-md text-center text-2xl font-bold">
-                        45
-                      </div>
-                      <div className="text-xs mt-1 text-neutral-400">
-                        Minutes
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="bg-neutral-800 w-full py-3 rounded-md text-center text-2xl font-bold">
-                        30
-                      </div>
-                      <div className="text-xs mt-1 text-neutral-400">
-                        Seconds
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-center text-sm text-neutral-400">
-                    Registration{" "}
-                    {new Date() <
-                    new Date(
-                      events.find((e) => e.id === selectedEventId)?.endDate,
-                    )
-                      ? "closes"
-                      : "closed"}{" "}
-                    on{" "}
-                    {formatDate(
-                      events.find((e) => e.id === selectedEventId)?.endDate,
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-6">
                 <LabelInputContainer>
-                  <Label>Custom Message (Optional)</Label>
-                  <Textarea
-                    placeholder="Add a custom message to display with the countdown"
-                    rows={3}
+                  <Label htmlFor="newsletterSubject">Email Subject*</Label>
+                  <Input
+                    id="newsletterSubject"
+                    placeholder="Newsletter subject line"
+                    value={newsletterTemplate.subject}
+                    onChange={(e) =>
+                      setNewsletterTemplate({
+                        ...newsletterTemplate,
+                        subject: e.target.value,
+                      })
+                    }
+                    className="bg-neutral-800"
                   />
                 </LabelInputContainer>
+
+                <LabelInputContainer>
+                  <Label htmlFor="newsletterContent">
+                    Email Content (HTML)*
+                  </Label>
+                  <Textarea
+                    id="newsletterContent"
+                    placeholder="Enter HTML content for your newsletter"
+                    rows={10}
+                    value={newsletterTemplate.html}
+                    onChange={(e) =>
+                      setNewsletterTemplate({
+                        ...newsletterTemplate,
+                        html: e.target.value,
+                      })
+                    }
+                    className="bg-neutral-800 font-mono text-sm"
+                  />
+                </LabelInputContainer>
+
+                <div className="bg-neutral-800 p-3 rounded-md text-sm text-neutral-400">
+                  <p>
+                    You can use HTML tags to format your newsletter. Example:
+                  </p>
+                  <code className="text-blue-400 block mt-2 bg-neutral-950 p-2 rounded">
+                    &lt;h1&gt;Newsletter Title&lt;/h1&gt;
+                    <br />
+                    &lt;p&gt;Welcome to our &lt;b&gt;latest
+                    update&lt;/b&gt;!&lt;/p&gt;
+                  </code>
+                </div>
+
+                <Button
+                  onClick={handleSendNewsletter}
+                  disabled={
+                    !newsletterTemplate.subject ||
+                    !newsletterTemplate.html ||
+                    sendingNewsletter ||
+                    newsletterEmails.length === 0
+                  }
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white cursor-pointer mt-4"
+                >
+                  {sendingNewsletter ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Sending to {newsletterEmails.length} subscribers...
+                    </span>
+                  ) : (
+                    `Send Newsletter to ${newsletterEmails.length} Subscribers`
+                  )}
+                </Button>
               </div>
             </div>
           </div>
         </TabsContent>
+        <Dialog
+          open={removeEmailDialogOpen}
+          onOpenChange={setRemoveEmailDialogOpen}
+        >
+          <DialogContent className="bg-neutral-900 text-white border-neutral-800">
+            <DialogHeader>
+              <DialogTitle>Confirm Removal</DialogTitle>
+            </DialogHeader>
+            <p className="py-4">
+              Are you sure you want to remove{" "}
+              <span className="font-semibold">{emailToRemove}</span> from the
+              newsletter subscribers list?
+            </p>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setRemoveEmailDialogOpen(false)}
+                className="bg-neutral-800"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleRemoveEmail}
+                disabled={removingEmail}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {removingEmail ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Removing...
+                  </span>
+                ) : (
+                  "Remove"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </Tabs>
 
       {/* Confirmation Dialog for Delete */}
