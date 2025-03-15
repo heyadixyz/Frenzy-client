@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
-=======
 import { Inter, Roboto_Mono } from "next/font/google";
->>>>>>> e705bd141d5e09eae524755f67a2f42c9ef26692
 import "./globals.css";
 
 const inter = Inter({
@@ -24,9 +21,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} ${robotoMono.variable} antialiased`}
-      >
+      <body className={`${inter.variable} ${robotoMono.variable} antialiased`}>
         {children}
         <Toaster />
       </body>
