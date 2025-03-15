@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "$schema": "https://ui.shadcn.com/schema.json",
   "style": "new-york",
   "rsc": true,
@@ -19,3 +20,25 @@
   },
   "iconLibrary": "lucide"
 }
+=======
+    "$schema": "https://ui.shadcn.com/schema.json",
+    "style": "new-york",
+    "rsc": true,
+    "tsx": false,
+    "tailwind": {
+      "config": "",
+      "css": "src/app/globals.css",
+      "baseColor": "neutral",
+      "cssVariables": true,
+      "prefix": ""
+    },
+    "aliases": {
+      "components": "@/components",
+      "utils": "@/lib/utils",
+      "ui": "@/components/ui",
+      "lib": "@/lib",
+      "hooks": "@/hooks"
+    },
+    "iconLibrary": "lucide"
+  }
+>>>>>>> e705bd141d5e09eae524755f67a2f42c9ef26692

@@ -39,5 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+<<<<<<< HEAD
 .gitignore
 src/app/test
+=======
+index.html
+test.html
+>>>>>>> e705bd141d5e09eae524755f67a2f42c9ef26692

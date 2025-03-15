@@ -1,13 +1,17 @@
+<<<<<<< HEAD
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+=======
+import { Inter, Roboto_Mono } from "next/font/google";
+>>>>>>> e705bd141d5e09eae524755f67a2f42c9ef26692
 import "./globals.css";
 
-const geistSans = Geist({
+const inter = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
+const robotoMono = Roboto_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
@@ -21,7 +25,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${robotoMono.variable} antialiased`}
       >
         {children}
         <Toaster />

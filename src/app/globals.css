@@ -122,8 +122,16 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+<<<<<<< HEAD
   }
   body {
     @apply bg-background text-foreground;
   }
 }
+=======
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+>>>>>>> e705bd141d5e09eae524755f67a2f42c9ef26692
