@@ -30,6 +30,7 @@ export const Hero = () => {
             eventTagline: data.data.description,
             isOpen: data.data.isOpen,
             type: data.data.type,
+            eventId: data.data._id,
           });
           setIsOpen(data.data.isOpen);
           setType(data.data.type);
@@ -72,6 +73,7 @@ export const Hero = () => {
             endingTime={eventData.endingTime}
             isOpen={eventData.isOpen}
             type={eventData.type}
+            eventId={eventData.eventId}
           />
         </BackgroundLines1>
       </div>

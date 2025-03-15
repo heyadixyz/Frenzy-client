@@ -62,7 +62,7 @@ export default function EventRegistrationForm({ eventId }) {
 
   return (
     <div
-      className="max-w-lg w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-10 shadow-input bg-black border border-zinc-700"
+      className="max-w-lg w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-10 shadow-input bg-black/20 border border-zinc-700"
       style={{ "--blue-500": "rgba(59, 130, 246, 0.6)" }}
     >
       <h2 className="font-bold text-2xl text-neutral-200">
@@ -74,7 +74,7 @@ export default function EventRegistrationForm({ eventId }) {
 
       <form className="my-8" onSubmit={handleSubmit}>
         <div className="space-y-6">
-          <div className="p-6 rounded-xl bg-neutral-900">
+          <div className="p-6 rounded-xl bg-neutral-900/60">
             <h3 className="font-medium text-lg mb-6 text-neutral-200">
               Personal Details
             </h3>

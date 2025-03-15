@@ -80,7 +80,7 @@ export default function VerifyOtpPage() {
         toast.success(data.message);
 
         // Redirect to dashboard
-        router.push("/admin/dashboard");
+        router.push("/admin/manage");
       } else {
         toast.error(data.message || "OTP verification failed");
       }
