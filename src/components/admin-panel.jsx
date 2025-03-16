@@ -1808,7 +1808,7 @@ export const AdminPanel = () => {
           {/* View Applicant Details Dialog */}
           {selectedApplicantDetails && (
             <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
-              <DialogContent className="bg-neutral-900 text-white border-neutral-800 max-w-2xl">
+              <DialogContent className="bg-neutral-900 text-white border-neutral-800 max-w-4xl">
                 <DialogHeader>
                   <DialogTitle>Applicant Details</DialogTitle>
                 </DialogHeader>
@@ -1838,9 +1838,9 @@ export const AdminPanel = () => {
                           </div>
                         </LabelInputContainer>
                         <LabelInputContainer>
-                          <Label>College</Label>
+                          <Label>Git Hub</Label>
                           <div className="bg-neutral-800 rounded-md p-2">
-                            {selectedApplicantDetails.college}
+                            {selectedApplicantDetails.githubLink}
                           </div>
                         </LabelInputContainer>
                       </div>
@@ -1912,10 +1912,13 @@ export const AdminPanel = () => {
                             </LabelInputContainer>
                             <LabelInputContainer>
                               <Label className="text-sm text-neutral-400">
-                                College
+                                GitHub
                               </Label>
                               <div className="bg-neutral-900 rounded-md p-2">
-                                {selectedApplicantDetails.college}
+                                {
+                                  selectedApplicantDetails.teamLeader
+                                    ?.githubLink
+                                }
                               </div>
                             </LabelInputContainer>
                           </div>
