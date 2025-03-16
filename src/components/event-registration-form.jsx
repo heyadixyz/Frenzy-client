@@ -63,20 +63,22 @@ export default function EventRegistrationForm({ eventId }) {
 
   return (
     <div
-      className="max-w-lg w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-10 shadow-input bg-black/20 border border-zinc-700"
+      className="w-full max-w-lg md:max-w-2xl min-w-sm md:min-w-lg mx-auto md:rounded-2xl rounded-md p-3 md:p-8 shadow-input bg-black/20 border border-zinc-700 overflow-hidden"
       style={{ "--blue-500": "rgba(59, 130, 246, 0.6)" }}
     >
-      <h2 className="font-bold text-2xl text-neutral-200">
+      <h2 className="font-bold text-xl md:text-2xl text-neutral-200">
         Event Registration
       </h2>
-      <p className="text-neutral-300 text-sm max-w-sm mt-2 mb-6">
+      <p className="text-neutral-300 text-xs md:text-sm max-w-sm mt-1 md:mt-2 mb-3 md:mb-6">
         Fill out the form below to register for the event
       </p>
 
-      <form className="my-8" onSubmit={handleSubmit}>
-        <div className="space-y-6">
-          <div className="p-6 rounded-xl bg-neutral-900/60">
-            <h3 className="font-medium text-lg mb-6 text-neutral-200">
+      {/* Rest of the form with reduced padding */}
+      <form className="my-4 md:my-8" onSubmit={handleSubmit}>
+        <div className="space-y-4 md:space-y-6">
+          <div className="p-2 sm:p-4 md:p-6 rounded-xl bg-neutral-900/60">
+            {/* Reduce spacing between fields */}
+            <h3 className="font-medium text-base md:text-lg mb-3 md:mb-6 text-neutral-200">
               Personal Details
             </h3>
 
@@ -88,6 +90,7 @@ export default function EventRegistrationForm({ eventId }) {
                 Full Name*
               </Label>
               <Input
+                className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                 id="name"
                 name="name"
                 placeholder="Enter your full name"
@@ -106,6 +109,7 @@ export default function EventRegistrationForm({ eventId }) {
                 Email Address*
               </Label>
               <Input
+                className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                 id="email"
                 name="email"
                 placeholder="Enter your email address"
@@ -124,6 +128,7 @@ export default function EventRegistrationForm({ eventId }) {
                 Mobile Number*
               </Label>
               <Input
+                className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                 id="mobileNumber"
                 name="mobileNumber"
                 placeholder="Enter your mobile number"
@@ -142,6 +147,7 @@ export default function EventRegistrationForm({ eventId }) {
                 Department*
               </Label>
               <Input
+                className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                 id="department"
                 name="department"
                 placeholder="Enter your department name"
@@ -160,6 +166,7 @@ export default function EventRegistrationForm({ eventId }) {
                 College/University Name*
               </Label>
               <Input
+                className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                 id="college"
                 name="college"
                 placeholder="Enter your college name"
@@ -178,6 +185,7 @@ export default function EventRegistrationForm({ eventId }) {
                 Year*
               </Label>
               <Input
+                className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                 id="year"
                 name="year"
                 placeholder="e.g. 2nd"
@@ -195,6 +203,7 @@ export default function EventRegistrationForm({ eventId }) {
                 GitHub Link*
               </Label>
               <Input
+                className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                 id="year"
                 name="year"
                 placeholder="e.g. https://ghithub.com/username"
@@ -207,7 +216,7 @@ export default function EventRegistrationForm({ eventId }) {
           </div>
 
           <button
-            className="bg-gradient-to-br relative group/btn from-zinc-900 to-zinc-900 block bg-zinc-800 w-full text-white rounded-md h-12 font-medium shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+            className="bg-gradient-to-br relative group/btn from-zinc-900 to-zinc-900 block bg-zinc-800 w-full text-white rounded-md h-10 md:h-12 font-medium shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
             type="submit"
           >
             Register Now

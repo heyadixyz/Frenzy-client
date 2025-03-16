@@ -126,26 +126,28 @@ export default function HackathonRegistrationForm({ eventId }) {
 
   return (
     <div
-      className="max-w-2xl w-full mx-auto rounded-none md:rounded-2xl p-4 md:pl-10 md:pr-10 shadow-input bg-black/20 border border-zinc-700"
+      className="w-full max-w-lg md:max-w-2xl mx-auto rounded-md md:rounded-2xl p-3 md:p-8 shadow-input bg-black/20 border border-zinc-700 overflow-hidden"
       style={{ "--blue-500": "rgba(59, 130, 246, 0.6)" }}
     >
-      <h2 className="font-bold text-2xl text-neutral-200">
+      <h2 className="font-bold text-xl md:text-2xl text-neutral-200">
         Hackathon Registration
       </h2>
-      <p className="text-neutral-300 text-sm max-w-sm mt-2 mb-6">
+      <p className="text-neutral-300 text-xs md:text-sm max-w-sm mt-1 md:mt-2 mb-3 md:mb-6">
         Fill out the form below to register your team for the hackathon
       </p>
 
-      <form className="my-8" onSubmit={handleSubmit}>
-        <div className="space-y-6">
-          <div className="p-4 rounded-xl bg-neutral-900/60">
-            <h3 className="font-medium text-lg mb-4 text-neutral-200">
+      <form className="my-4 md:my-8" onSubmit={handleSubmit}>
+        <div className="space-y-3 md:space-y-6">
+          {/* Reduce all padding */}
+          <div className="p-2 sm:p-3 md:p-4 rounded-xl bg-neutral-900/60">
+            <h3 className="font-medium text-base md:text-lg mb-2 md:mb-4 text-neutral-200">
               Team Details
             </h3>
 
             <LabelInputContainer className="mb-4">
               <Label htmlFor="teamName">Team Name*</Label>
               <Input
+                className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                 id="teamName"
                 name="teamName"
                 placeholder="Enter your team name"
@@ -159,6 +161,7 @@ export default function HackathonRegistrationForm({ eventId }) {
             <LabelInputContainer className="mb-4">
               <Label htmlFor="topicName">Project Topic/Name*</Label>
               <Input
+                className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                 id="topicName"
                 name="topicName"
                 placeholder="Enter your project topic"
@@ -211,6 +214,7 @@ export default function HackathonRegistrationForm({ eventId }) {
             <LabelInputContainer className="mb-4">
               <Label htmlFor="teamLeaderName">Full Name*</Label>
               <Input
+                className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                 id="teamLeaderName"
                 placeholder="Enter team leader's name"
                 type="text"
@@ -224,6 +228,7 @@ export default function HackathonRegistrationForm({ eventId }) {
               <LabelInputContainer className="flex-1">
                 <Label htmlFor="teamLeaderMobileNumber">Mobile Number*</Label>
                 <Input
+                  className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                   id="teamLeaderMobileNumber"
                   placeholder="Enter mobile number"
                   type="tel"
@@ -240,6 +245,7 @@ export default function HackathonRegistrationForm({ eventId }) {
               <LabelInputContainer className="flex-1">
                 <Label htmlFor="teamLeaderEmail">Email Address*</Label>
                 <Input
+                  className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                   id="teamLeaderEmail"
                   placeholder="Enter email address"
                   type="email"
@@ -256,6 +262,7 @@ export default function HackathonRegistrationForm({ eventId }) {
               <LabelInputContainer className="flex-1">
                 <Label htmlFor="teamLeaderDepartment">Department*</Label>
                 <Input
+                  className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                   id="teamLeaderDepartment"
                   placeholder="e.g. Computer Science"
                   type="text"
@@ -269,6 +276,7 @@ export default function HackathonRegistrationForm({ eventId }) {
               <LabelInputContainer className="flex-1">
                 <Label htmlFor="teamLeaderYear">Year*</Label>
                 <Input
+                  className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                   id="teamLeaderYear"
                   placeholder="e.g. 3rd"
                   type="text"
@@ -282,6 +290,7 @@ export default function HackathonRegistrationForm({ eventId }) {
             <LabelInputContainer className="flex-1 pt-4">
               <Label htmlFor="teamLeaderYear">GitHub Link*</Label>
               <Input
+                className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                 id="githubLink"
                 placeholder="e.g. https://github.com/username"
                 type="text"
@@ -304,6 +313,7 @@ export default function HackathonRegistrationForm({ eventId }) {
                 <LabelInputContainer className="mb-4">
                   <Label htmlFor={`memberName${index}`}>Full Name*</Label>
                   <Input
+                    className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                     id={`memberName${index}`}
                     placeholder="Enter member's name"
                     type="text"
@@ -321,6 +331,7 @@ export default function HackathonRegistrationForm({ eventId }) {
                       Department*
                     </Label>
                     <Input
+                      className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                       id={`memberDepartment${index}`}
                       placeholder="e.g. Computer Science"
                       type="text"
@@ -334,6 +345,7 @@ export default function HackathonRegistrationForm({ eventId }) {
                   <LabelInputContainer className="flex-1">
                     <Label htmlFor={`memberYear${index}`}>Year*</Label>
                     <Input
+                      className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                       id={`memberYear${index}`}
                       placeholder="e.g. 3rd"
                       type="text"
@@ -347,6 +359,7 @@ export default function HackathonRegistrationForm({ eventId }) {
                 <LabelInputContainer className="flex-1 pt-4">
                   <Label htmlFor={`memberYear${index}`}>GitHub Link*</Label>
                   <Input
+                    className="h-9 md:h-10 text-xs md:text-sm px-2 md:px-3"
                     id={`githubLink${index}`}
                     placeholder="e.g. https://github.com/username"
                     type="text"
@@ -361,7 +374,7 @@ export default function HackathonRegistrationForm({ eventId }) {
           )}
 
           <button
-            className="bg-gradient-to-br relative group/btn from-zinc-900 to-zinc-900 block bg-zinc-800 w-full text-white rounded-md h-12 font-medium shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+            className="bg-gradient-to-br relative group/btn from-zinc-900 to-zinc-900 block bg-zinc-800 w-full text-white rounded-md h-10 md:h-12 font-medium shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
             type="submit"
           >
             Register Your Team

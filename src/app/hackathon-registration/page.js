@@ -13,9 +13,11 @@ export default function Page() {
       <AnimatedBackground
         primaryColor="rgba(67, 19, 87, 0.35)"
         secondaryColor="rgba(49, 47, 147, 0.35)"
-        className="min-h-screen flex items-center justify-center p-4 md:p-8"
+        className="min-h-screen flex items-center justify-center p-2 sm:p-4 md:p-8"
       >
-        <HackathonRegistrationForm eventId={eventId} />
+        <div className="w-full max-w-full overflow-x-hidden">
+          <HackathonRegistrationForm eventId={eventId} />
+        </div>
       </AnimatedBackground>
     </div>
   );
