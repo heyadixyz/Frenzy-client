@@ -3,11 +3,11 @@ import React from "react";
 import { SparklesCore } from "./ui/sparkles";
 export function Sparkles1({ heading, subheading }) {
   return (
-    <div className="h-[60rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
-      <h1 className="md:text-7xl text-3xl lg:text-9xl font-bold text-center text-white relative z-20">
+    <div className="md:h-[60rem] h-[45rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
+      <h1 className="md:text-7xl text-4xl lg:text-9xl font-bold text-center text-white relative z-20">
         {heading}
       </h1>
-      <p className="text-center text-neutral-200 dark:text-neutral-400 text-lg md:text-3xl md:pt-4 max-w-xl mx-auto relative z-20">
+      <p className="text-center text-neutral-200 dark:text-neutral-400 text-lg md:text-3xl md:pt-4 max-w-xl mx-auto relative z-20 pt-1">
         {subheading}
       </p>
       <div className="w-[70rem] h-40 relative">
