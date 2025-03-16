@@ -18,12 +18,14 @@ export default function HackathonRegistrationForm({ eventId }) {
       mobileNumber: "",
       department: "",
       year: "",
+      githubLink: "",
     },
     numberOfMembers: 2,
     teamMembers: Array(4).fill({
       name: "",
       department: "",
       year: "",
+      githubLink: "",
     }),
   });
   const router = useRouter();
@@ -277,6 +279,18 @@ export default function HackathonRegistrationForm({ eventId }) {
                 />
               </LabelInputContainer>
             </div>
+            <LabelInputContainer className="flex-1 pt-4">
+              <Label htmlFor="teamLeaderYear">GitHub Link*</Label>
+              <Input
+                id="githubLink"
+                placeholder="e.g. https://github.com/username"
+                type="text"
+                value={formData.teamLeader.githubLink}
+                onChange={(e) =>
+                  handleTeamLeaderChange("githubLink", e.target.value)
+                }
+              />
+            </LabelInputContainer>
           </div>
 
           {/* Team Members */}
@@ -330,6 +344,18 @@ export default function HackathonRegistrationForm({ eventId }) {
                     />
                   </LabelInputContainer>
                 </div>
+                <LabelInputContainer className="flex-1 pt-4">
+                  <Label htmlFor={`memberYear${index}`}>GitHub Link*</Label>
+                  <Input
+                    id={`githubLink${index}`}
+                    placeholder="e.g. https://github.com/username"
+                    type="text"
+                    value={formData.teamMembers[index]?.githubLink || ""}
+                    onChange={(e) =>
+                      handleMemberChange(index, "githubLink", e.target.value)
+                    }
+                  />
+                </LabelInputContainer>
               </div>
             ),
           )}

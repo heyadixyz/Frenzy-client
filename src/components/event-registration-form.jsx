@@ -15,6 +15,7 @@ export default function EventRegistrationForm({ eventId }) {
     department: "",
     year: "",
     college: "",
+    githubLink: "",
   });
 
   const router = useRouter();
@@ -182,6 +183,23 @@ export default function EventRegistrationForm({ eventId }) {
                 placeholder="e.g. 2nd"
                 type="text"
                 value={formData.year}
+                onChange={handleChange}
+                required
+              />
+            </LabelInputContainer>
+            <LabelInputContainer className="mb-5">
+              <Label
+                htmlFor="gitubLink"
+                className="text-sm font-medium text-neutral-300"
+              >
+                GitHub Link*
+              </Label>
+              <Input
+                id="year"
+                name="year"
+                placeholder="e.g. https://ghithub.com/username"
+                type="text"
+                value={formData.githubLink}
                 onChange={handleChange}
                 required
               />
