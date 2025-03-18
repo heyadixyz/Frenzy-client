@@ -4,7 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 
-export const EventCountdown = ({ eventTime, endingTime, type, isOpen }) => {
+export const EventCountdown = ({
+  eventTime,
+  endingTime,
+  type,
+  isOpen,
+  eventId,
+}) => {
   const [timeLeft, setTimeLeft] = useState(null);
   const [isFinished, setIsFinished] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -167,21 +173,21 @@ export const EventCountdown = ({ eventTime, endingTime, type, isOpen }) => {
       ) : isOpen ? (
         type === "team" || type === "hackathon" ? (
           <motion.a
-            href="/hackathon-registration"
+            href={`/hackathon-registration?eventId=${eventId}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1 }}
-            className="px-8 py-3 relative z-10 cursor-pointer rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-lg shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:-translate-y-1"
+            className="px-8 py-3 relative z-10 cursor-pointer rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-lg shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:-translate-y-1 mt-4"
           >
             Register Team
           </motion.a>
         ) : (
           <motion.a
-            href="/event-registration"
+            href={`/event-registration?eventId=${eventId}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1 }}
-            className="px-8 py-3 relative z-10 cursor-pointer rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-lg shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:-translate-y-1"
+            className="px-8 py-3 relative z-10 cursor-pointer rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-lg shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:-translate-y-1 mt-4"
           >
             Register Now
           </motion.a>
@@ -191,7 +197,7 @@ export const EventCountdown = ({ eventTime, endingTime, type, isOpen }) => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1 }}
-          className="px-8 py-3 relative z-10 rounded-full bg-gray-700 text-gray-400 font-bold text-lg shadow-lg cursor-not-allowed"
+          className="px-8 py-3 relative z-10 rounded-full bg-gray-700 text-gray-400 font-bold text-lg shadow-lg cursor-not-allowed mt-4"
         >
           Registration Closed
         </motion.div>

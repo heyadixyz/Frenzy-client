@@ -697,7 +697,7 @@ export const AdminPanel = () => {
       );
 
       const templateData = await templateResponse.json();
-
+      console.log(templateData);
       if (templateData.status !== "success") {
         throw new Error(
           templateData.message || "Failed to set newsletter template",
@@ -716,7 +716,7 @@ export const AdminPanel = () => {
       );
 
       const sendData = await sendResponse.json();
-
+      console.log(sendData);
       if (sendData.status === "success") {
         toast.success("Newsletter sent successfully");
         setNewsletterTemplate({ subject: "", html: "" });
@@ -1365,9 +1365,6 @@ export const AdminPanel = () => {
                               <th className="text-left py-3 px-4 font-medium text-neutral-300">
                                 Members
                               </th>
-                              <th className="text-left py-3 px-4 font-medium text-neutral-300">
-                                College
-                              </th>
                               <th className="text-center py-3 px-4 font-medium text-neutral-300">
                                 Status
                               </th>
@@ -1431,9 +1428,6 @@ export const AdminPanel = () => {
                                   <td className="py-3 px-4">
                                     {applicant.members?.length || 1}
                                   </td>
-                                  <td className="py-3 px-4">
-                                    {applicant.college}
-                                  </td>
                                   <td className="py-3 px-4 text-center">
                                     {applicant.isMailSent ? (
                                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
@@ -1462,26 +1456,6 @@ export const AdminPanel = () => {
                                         <FileEdit className="h-4 w-4" />
                                         <span className="sr-only">
                                           View details
-                                        </span>
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="h-8 w-8 p-0 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 border-blue-800"
-                                        disabled={
-                                          applicant.isMailSent || sendingEmail
-                                        }
-                                        onClick={() =>
-                                          handleSendEmail(applicant._id, "team")
-                                        }
-                                      >
-                                        {sendingEmail === applicant._id ? (
-                                          <Loader2 className="h-4 w-4 animate-spin" />
-                                        ) : (
-                                          <Mail className="h-4 w-4" />
-                                        )}
-                                        <span className="sr-only">
-                                          Send email
                                         </span>
                                       </Button>
                                       <Button
@@ -1595,9 +1569,6 @@ export const AdminPanel = () => {
                               <th className="text-left py-3 px-4 font-medium text-neutral-300">
                                 Mobile
                               </th>
-                              <th className="text-left py-3 px-4 font-medium text-neutral-300">
-                                College
-                              </th>
                               <th className="text-center py-3 px-4 font-medium text-neutral-300">
                                 Status
                               </th>
@@ -1655,9 +1626,6 @@ export const AdminPanel = () => {
                                   <td className="py-3 px-4">
                                     {applicant.mobileNumber}
                                   </td>
-                                  <td className="py-3 px-4">
-                                    {applicant.college}
-                                  </td>
                                   <td className="py-3 px-4 text-center">
                                     {applicant.isMailSent ? (
                                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
@@ -1686,26 +1654,6 @@ export const AdminPanel = () => {
                                         <FileEdit className="h-4 w-4" />
                                         <span className="sr-only">
                                           View details
-                                        </span>
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="h-8 w-8 p-0 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 border-blue-800"
-                                        disabled={
-                                          applicant.isMailSent || sendingEmail
-                                        }
-                                        onClick={() =>
-                                          handleSendEmail(applicant._id, "solo")
-                                        }
-                                      >
-                                        {sendingEmail === applicant._id ? (
-                                          <Loader2 className="h-4 w-4 animate-spin" />
-                                        ) : (
-                                          <Mail className="h-4 w-4" />
-                                        )}
-                                        <span className="sr-only">
-                                          Send email
                                         </span>
                                       </Button>
                                       <Button
@@ -1860,7 +1808,7 @@ export const AdminPanel = () => {
           {/* View Applicant Details Dialog */}
           {selectedApplicantDetails && (
             <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
-              <DialogContent className="bg-neutral-900 text-white border-neutral-800 max-w-2xl">
+              <DialogContent className="bg-neutral-900 text-white border-neutral-800 max-w-4xl">
                 <DialogHeader>
                   <DialogTitle>Applicant Details</DialogTitle>
                 </DialogHeader>
@@ -1890,9 +1838,9 @@ export const AdminPanel = () => {
                           </div>
                         </LabelInputContainer>
                         <LabelInputContainer>
-                          <Label>College</Label>
+                          <Label>Git Hub</Label>
                           <div className="bg-neutral-800 rounded-md p-2">
-                            {selectedApplicantDetails.college}
+                            {selectedApplicantDetails.githubLink}
                           </div>
                         </LabelInputContainer>
                       </div>
@@ -1964,10 +1912,13 @@ export const AdminPanel = () => {
                             </LabelInputContainer>
                             <LabelInputContainer>
                               <Label className="text-sm text-neutral-400">
-                                College
+                                GitHub
                               </Label>
                               <div className="bg-neutral-900 rounded-md p-2">
-                                {selectedApplicantDetails.college}
+                                {
+                                  selectedApplicantDetails.teamLeader
+                                    ?.githubLink
+                                }
                               </div>
                             </LabelInputContainer>
                           </div>
