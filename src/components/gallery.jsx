@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 
-export const Gallery = () => {
+export default function Glimpses () {
   const [expandedSections, setExpandedSections] = useState({});
   const [lightbox, setLightbox] = useState({
     open: false,

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { AnimatedBackground } from "@/components/animated-background";
+import  AnimatedBackground  from "@/components/animated-background";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 

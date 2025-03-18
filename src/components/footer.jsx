@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import Link from 'next/link';
 
-const Footer = () => {
+export default function Footer  (){
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('Please enter a valid email address');
@@ -240,4 +240,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+

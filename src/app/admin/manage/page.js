@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatedBackground } from "@/components/animated-background";
+import  AnimatedBackground  from "@/components/animated-background";
 import { AdminPanel } from "@/components/admin-panel";
 
 export default function Page() {

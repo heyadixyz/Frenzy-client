@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { AnimatedBackground } from "@/components/animated-background";
+import  AnimatedBackground  from "@/components/animated-background";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 
@@ -80,7 +80,7 @@ export default function VerifyOtpPage() {
         toast.success(data.message);
 
         // Redirect to dashboard
-        router.push("/admin/dashboard");
+        router.push("/admin/manage");
       } else {
         toast.error(data.message || "OTP verification failed");
       }

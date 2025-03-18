@@ -138,7 +138,7 @@ const Navbar = () => {
                     </Link>
                 ))}
                 <Link
-                    href="#register"
+                    href="/gallery"
                     className="block bg-blue-500 text-white text-center py-2 rounded-lg mt-2 hover:bg-blue-700 transition-colors duration-300"
                     onClick={closeMenu}
                 >

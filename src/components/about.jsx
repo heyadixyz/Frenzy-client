@@ -104,7 +104,7 @@ const AboutUs = () => {
                     </div>
                 </div>
                 <div className="mb-16">
-                    <h3 className="text-2xl font-bold text-center mb-8 text-white">What We Do</h3>
+                <h2 className="md:text-4xl text-3xl font-extrabold text-center bg-gradient-to-b from-white to-purple-200/70 text-transparent bg-clip-text mb-4">What We Do</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         {[{
                             title: "Tech Events",

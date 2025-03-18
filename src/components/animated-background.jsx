@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-export const AnimatedBackground = ({
+export default function AnimatedBackground  ({
   primaryColor = "rgba(67, 19, 87, 0.35)",
   secondaryColor = "rgba(49, 47, 147, 0.35)",
   className = "",
   children,
-}) => {
+})  {
   const canvasRef = useRef(null);
 
   useEffect(() => {
