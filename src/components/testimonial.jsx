@@ -127,8 +127,8 @@ const Testimonial = () => {
             </motion.div>
 
             <div className="relative mb-12 overflow-hidden">
-                <div className="absolute top-0 left-0 w-24 h-full bg-gradient-to-r from-gray-900 to-transparent z-10"></div>
-                <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-gray-900 to-transparent z-10"></div>
+                {/* <div className="absolute top-0 left-0 w-24 h-full bg-gradient-to-r from-gray-900 to-transparent z-10"></div>
+                <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-gray-900 to-transparent z-10"></div> */}
 
                 <div className="flex scroll-right-animation py-4">
                     <div className="flex flex-nowrap gap-6">
@@ -143,6 +143,7 @@ const Testimonial = () => {
                             />
                         ))}
                     </div>
+                    <div className="flex-shrink-0 w-12"></div>
                     <div className="flex flex-nowrap gap-6">
                         {testimonials1.map((testimonial, index) => (
                             <TestimonialCard
@@ -158,8 +159,8 @@ const Testimonial = () => {
                 </div>
             </div>
             <div className="relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-24 h-full bg-gradient-to-r from-gray-900 to-transparent z-10"></div>
-                <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-gray-900 to-transparent z-10"></div>
+                {/* <div className="absolute top-0 left-0 w-24 h-full bg-gradient-to-r from-gray-900 to-transparent z-10"></div>
+                <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-gray-900 to-transparent z-10"></div> */}
 
                 <div className="flex scroll-left-animation py-4">
                     <div className="flex flex-nowrap gap-6">
@@ -174,6 +175,7 @@ const Testimonial = () => {
                             />
                         ))}
                     </div>
+                    <div className="flex-shrink-0 w-12"></div>
                     <div className="flex flex-nowrap gap-6">
                         {testimonials2.map((testimonial, index) => (
                             <TestimonialCard
@@ -195,13 +197,13 @@ const Testimonial = () => {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-100%);
+            transform: translateX(calc(-100% - 3rem)); /* Account for the spacer width */
           }
         }
 
         @keyframes scroll-left {
           0% {
-            transform: translateX(-100%);
+            transform: translateX(calc(-100% - 3rem)); /* Account for the spacer width */
           }
           100% {
             transform: translateX(0);
@@ -209,11 +211,11 @@ const Testimonial = () => {
         }
 
         .scroll-right-animation {
-          animation: scroll-right 30s linear infinite;
+          animation: scroll-right 40s linear infinite; /* Slower animation for smoother scrolling */
         }
 
         .scroll-left-animation {
-          animation: scroll-left 30s linear infinite;
+          animation: scroll-left 40s linear infinite; /* Slower animation for smoother scrolling */
         }
       `}</style>
         </section>

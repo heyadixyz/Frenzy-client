@@ -74,13 +74,12 @@ const Navbar = () => {
     }, [isMenuOpen]);
 
     return (
-        <nav className="sticky top-5 z-[10] bg-[rgba(40,40,42,0.6)] backdrop-filter backdrop-blur-[10px] border border-white/10 px-4 py-2 w-[90%] lg:w-[65%] xl:w-[75%] 2xl:w-[65%] mx-auto rounded-[14px] will-change-transform">
+        <nav className="fixed top-0 z-[100] bg-[rgba(40,40,42,0.6)] backdrop-filter backdrop-blur-[10px] border border-white/10 px-4 py-2 w-[90%] lg:w-[65%] xl:w-[75%] 2xl:w-[65%] mx-auto rounded-[14px] will-change-transform left-0 right-0 mt-5">
             <div className="max-w-7xl mx-auto flex items-center justify-between h-full">
                 <div className="flex items-center space-x-3">
                     <span className="text-white text-2xl font-extrabold tracking-tight">Tech Frenzy</span>
                 </div>
 
-                {/* Desktop Menu */}
                 <div className="hidden xl:flex space-x-2 text-white/90 font-medium">
                     {['About Us', 'Timeline', 'Glimpses', 'FAQ', 'Community Partners', 'Sponsors'].map((item) => (
                         <Link
@@ -101,7 +100,6 @@ const Navbar = () => {
                     Register Now
                 </Link>
 
-                {/* Mobile Menu Toggle Button */}
                 <button
                     className="xl:hidden text-white focus:outline-none touch-manipulation"
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -120,7 +118,6 @@ const Navbar = () => {
                 </button>
             </div>
 
-            {/* Mobile Menu (Collapsible) */}
             <div
                 ref={mobileMenuRef}
                 className="xl:hidden overflow-hidden max-h-0 transition-[max-height] duration-500 ease-out bg-[transaparent] p-4 rounded-lg mt-2 hidden"

@@ -9,25 +9,22 @@ import Sponsors from "@/components/sponsor";
 import Testimonial from "@/components/testimonial";
 import FAQ from "@/components/faq";
 import Partners from "@/components/partners";
-import  Glimpses  from "@/components/gallery";
+import Glimpses from "@/components/gallery";
+
 export default function Home() {
   return (
-      <AnimatedBackground>
+    <AnimatedBackground>
         <Navbar/>
         <Hero/>
         <AboutUs/>
         <Timeline/>
-        
         <Sponsors/>
         <Partners/>
         <Testimonial/>
-        
         <Glimpses/>
         <Community/>
-        
         <FAQ/>
         <Footer/>
-      </AnimatedBackground>
-    
+    </AnimatedBackground>
   );
 }
