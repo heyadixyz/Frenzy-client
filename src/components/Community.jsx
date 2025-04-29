@@ -159,7 +159,7 @@ const Community = () => {
                     </div>
                     <div className="absolute top-[45%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[5] text-center w-full px-4">
                         <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold gradient-text drop-shadow-2xl">
-                            Get a glimpse of our Tech Frenzy
+                            Get a glimpse of Tech Frenzy
                         </h3>
                     </div>
                     {eventImages.map((image, index) => (
